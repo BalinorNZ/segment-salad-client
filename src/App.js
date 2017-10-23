@@ -7,12 +7,17 @@ const strava = require('strava-v3');
 
 
 class App extends Component {
+  state = {users: []};
+  componentDidMount() {
+    fetch('/data')
+      .then(res => res.json())
+      .then(data => console.log(data));
+  }
   render() {
     return (
       <div className="App">
         <header className="App-header">
           <img src={logo} className="App-logo" alt="logo" />
-          <h1 className="App-title">Welcome to React</h1>
         </header>
 
         <Router>
@@ -63,30 +68,37 @@ class Segments extends Component {
     );
   }
   getDunedinSegments() {
-    //-45.9100,170.4544   -45.8423,170.5676
-    const [min_lat, min_long, max_lat, max_long] = [-45.9100, 170.4544, -45.8423, 170.5676];
-    const iterator = n => f => {
-      let iter = i => {
-        if(i === n) return;
-        f(i);
-        iter(i+1);
-      };
-      return iter(0);
-    };
-    const splits = 3; // should create splits+1^2 sub-rects (16 if splits is 3)
-    let long_points = [];
-    let lat_points = [];
-    iterator(splits)(i => {
-      lat_points.push( (min_lat + ((max_lat-min_lat)/splits+1)*i) );
-      long_points.push( (min_long + ((max_long-min_long)/splits+1)*i) );
+    const rectArray =  [[-45.9100, 170.4544, -45.8423, 170.5676]];
+
+    rectArray.map(rect => {
+      const numSplits = 6;
+      const minlat = rect[0];
+      const minlong = rect[1];
+      const maxlat = rect[2];
+      const maxlong = rect[3];
+      const longpoints = [];
+      const latpoints = [];
+      const extents = [];
+
+      for(let i=0; i <= numSplits; i++){
+        latpoints.push((minlat + ((maxlat-minlat)/numSplits)*i));
+        longpoints.push((minlong + ((maxlong-minlong)/numSplits)*i));
+      }
+
+      //Now loop through and create a list of sub-rectangles
+      latpoints.map((latmin, latindex) => {
+        longpoints.map((longmin, longindex) => {
+          if(latindex < (latpoints.length-1) && longindex < (longpoints.length-1)){
+            extents.push([latmin, longmin, latpoints[latindex+1], longpoints[longindex+1]]);
+          }
+        })
+      });
+
+      extents.forEach(extent => this.getSegments(extent[0], extent[1], extent[2], extent[3]));
     });
-    console.log(long_points, lat_points);
-
-    // TODO: now loop through the line locations and create a list of sub-rectangles
-
-    this.getSegments(-45.9100, 170.4544, -45.8423, 170.5676);
   }
   getSegments(a_lat, a_long, b_lat, b_long) {
+    console.log('getSegments:', a_lat, a_long, b_lat, b_long);
     //-45.911756,170.495793,-45.888165,170.535169
     fetch(`https://www.strava.com/api/v3/segments/explore?bounds=${a_lat},${a_long},${b_lat},${b_long}&activity_type=running`, {
       headers: {
@@ -95,8 +107,11 @@ class Segments extends Component {
       }
     }).then(response =>
       response.json().then(payload => {
-        this.setState({ segments: [...this.state.segments, ...payload.segments] });
-        //this.getCRs(payload.segments);
+        const dupes = payload.segments.filter(s => this.state.segments.includes(s.id));
+        console.log(payload.segments.length, dupes);
+        const segments = payload.segments.filter(s => !this.state.segments.includes(s.id));
+        this.setState({ segments: [...this.state.segments, ...segments] });
+        this.getCRs(payload.segments);
       })
     );
   }
@@ -109,13 +124,14 @@ class Segments extends Component {
     //console.log(this.state.segments);
     return (
     <div>
+      <div>Segments: {this.state.segments.length}</div>
       <table>
         <thead>
         <tr><th>Name</th><th>Distance</th><th>Grade</th><th>Elevation</th><th>Efforts</th><th>CR Holder</th><th>Pace</th><th>HR</th><th>Distance</th><th>Elapsed</th><th>Moving</th><th>Rank</th><th>Date</th></tr>
         </thead>
         <tbody>
         {this.state.segments && this.state.segments.map(s =>
-            <tr key={s.id}>
+            <tr key={s.id} id={s.id}>
               <td>{s.name}</td>
               <td>{s.distance}</td>
               <td>{s.avg_grade}</td>
@@ -139,26 +155,15 @@ class Segments extends Component {
 }
 
 class Activities extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      activities: [],
-    }
-  }
+  state = { activities: [] };
+
   componentDidMount() {
     this.getActivities(1);
   }
   getActivities(page) {
-    fetch(`https://www.strava.com/api/v3/athlete/activities?page=${page}&per_page=200`, {
-      headers: {
-        Authorization: "Bearer 1e0c15bfece72d30bdc7fac56e3a90fae34508e8",
-        "Content-Type": "application/x-www-form-urlencoded"
-      }
-    }).then(response =>
-      response.json().then(activities => {
-        this.setState({ activities });
-      })
-    );
+    fetch(`/activities/${page}`)
+      .then(res => res.json())
+      .then(activities => this.setState({ activities }));
   }
   handleClick(e) {
     e.preventDefault();
@@ -208,33 +213,22 @@ class Activities extends Component {
 }
 
 class Pagination extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      athlete: {},
-    }
-  }
+  state = { athlete: {} };
+
   componentDidMount() {
     this.getAthlete(4734138);
   }
-  getAthlete(athleteId) {
-    fetch(`https://www.strava.com/api/v3/athletes/${athleteId}/stats`, {
-      headers: {
-        Authorization: "Bearer 1e0c15bfece72d30bdc7fac56e3a90fae34508e8",
-        "Content-Type": "application/x-www-form-urlencoded"
-      }
-    }).then(response =>
-      response.json().then(athlete => {
-        this.setState({ athlete });
-      })
-    );
+  getAthlete(id) {
+    fetch(`/athletes/${id}/stats`)
+      .then(res => res.json())
+      .then(athlete => this.setState({ athlete }));
   }
   render() {
     if(!this.state.athlete.all_ride_totals
         || !this.state.athlete.all_run_totals
         || !this.state.athlete.all_swim_totals) return (<ul></ul>);
     const activity_total = this.state.athlete.all_ride_totals.count + this.state.athlete.all_run_totals.count + this.state.athlete.all_swim_totals.count;
-    let pages = [...Array(Math.ceil(activity_total/200)).keys()];
+    let pages = [...Array(Math.ceil(activity_total/50)).keys()];
     return (
       <ul className="zones">{pages.map(p => <li key={p} onClick={this.props.getActivities}><a href="#">{p+1}</a></li>)}</ul>
     );
@@ -242,26 +236,15 @@ class Pagination extends Component {
 }
 
 class Zones extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      zones: [],
-    }
-  }
+  state = { zones: [] };
+
   componentDidMount() {
     this.getZones();
   }
   getZones() {
-    fetch(`https://www.strava.com/api/v3/athlete/zones`, {
-      headers: {
-        Authorization: "Bearer 1e0c15bfece72d30bdc7fac56e3a90fae34508e8",
-        "Content-Type": "application/x-www-form-urlencoded"
-      }
-    }).then(response =>
-      response.json().then(payload => {
-        this.setState({ zones: payload.heart_rate.zones });
-      })
-    );
+    fetch(`/athlete/zones`)
+      .then(res => res.json())
+      .then(payload => this.setState({ zones: payload.heart_rate.zones }));
   }
   render() {
     const zone_labels = ['Endurance', 'Moderate', 'Tempo', 'Threshold', 'Anaerobic'];
