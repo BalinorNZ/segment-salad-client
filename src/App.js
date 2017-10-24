@@ -7,12 +7,6 @@ const strava = require('strava-v3');
 
 
 class App extends Component {
-  state = {users: []};
-  componentDidMount() {
-    fetch('/data')
-      .then(res => res.json())
-      .then(data => console.log(data));
-  }
   render() {
     return (
       <div className="App">
@@ -41,65 +35,15 @@ class Segments extends Component {
   state = { segments: [] };
 
   componentDidMount() {
-    this.getDunedinSegments();
-  }
-  getCRs(segments) {
-    segments.map(s =>
-      fetch(`/segments/${s.id}/leaderboard`)
-        .then(res => res.json())
-        .then(payload => {
-          const segments = this.state.segments;
-          const i = segments.findIndex(o => o.id === s.id);
-          segments[i] = s;
-          segments[i].cr = payload.entries[0];
-          segments[i].entry_count = payload.entry_count;
-          //console.log(segments);
-          this.setState({segments});
-        })
-    );
-  }
-  getDunedinSegments() {
-    const rectArray =  [[-45.9100, 170.4544, -45.8423, 170.5676]];
-
-    rectArray.map(rect => {
-      const numSplits = 6;
-      const minlat = rect[0];
-      const minlong = rect[1];
-      const maxlat = rect[2];
-      const maxlong = rect[3];
-      const longpoints = [];
-      const latpoints = [];
-      const extents = [];
-
-      for(let i=0; i <= numSplits; i++){
-        latpoints.push((minlat + ((maxlat-minlat)/numSplits)*i));
-        longpoints.push((minlong + ((maxlong-minlong)/numSplits)*i));
-      }
-
-      //Now loop through and create a list of sub-rectangles
-      latpoints.map((latmin, latindex) => {
-        longpoints.map((longmin, longindex) => {
-          if(latindex < (latpoints.length-1) && longindex < (longpoints.length-1)){
-            extents.push([latmin, longmin, latpoints[latindex+1], longpoints[longindex+1]]);
-          }
-        })
-      });
-
-      extents.forEach(extent => this.getSegments(extent[0], extent[1], extent[2], extent[3]));
-    });
-  }
-  getSegments(a_lat, a_long, b_lat, b_long) {
-    console.log('getSegments:', a_lat, a_long, b_lat, b_long);
     //-45.911756,170.495793,-45.888165,170.535169
+    const { a_lat, a_long, b_lat, b_long } =
+      { a_lat: -45.9100, a_long: 170.4544, b_lat: -45.8423, b_long: 170.5676 };
     fetch(`/segments/explore/${a_lat}/${a_long}/${b_lat}/${b_long}`)
       .then(res => res.json())
-      .then(payload => {
-        const dupes = payload.segments.filter(s => this.state.segments.includes(s.id));
-        console.log(payload.segments.length, dupes);
-        const segments = payload.segments.filter(s => !this.state.segments.includes(s.id));
-        this.setState({ segments: [...this.state.segments, ...segments] });
-        //this.getCRs(payload.segments);
-      });
+      .then(segments => this.setState({ segments }));
+  }
+  getSegments(a_lat, a_long, b_lat, b_long) {
+
   }
   convertSpeedToPace(speed) {
     const total_seconds = 1000 / speed;
