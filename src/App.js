@@ -38,33 +38,24 @@ class App extends Component {
 }
 
 class Segments extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      segments: [],
-    }
-  }
+  state = { segments: [] };
+
   componentDidMount() {
     this.getDunedinSegments();
   }
   getCRs(segments) {
     segments.map(s =>
-      fetch(`https://www.strava.com/api/v3/segments/${s.id}/leaderboard`, {
-        headers: {
-          Authorization: "Bearer 1e0c15bfece72d30bdc7fac56e3a90fae34508e8",
-          "Content-Type": "application/x-www-form-urlencoded"
-        }
-      }).then(response =>
-        response.json().then(payload => {
+      fetch(`/segments/${s.id}/leaderboard`)
+        .then(res => res.json())
+        .then(payload => {
           const segments = this.state.segments;
           const i = segments.findIndex(o => o.id === s.id);
           segments[i] = s;
           segments[i].cr = payload.entries[0];
           segments[i].entry_count = payload.entry_count;
-          console.log(segments);
-          this.setState({ segments });
+          //console.log(segments);
+          this.setState({segments});
         })
-      )
     );
   }
   getDunedinSegments() {
@@ -100,20 +91,15 @@ class Segments extends Component {
   getSegments(a_lat, a_long, b_lat, b_long) {
     console.log('getSegments:', a_lat, a_long, b_lat, b_long);
     //-45.911756,170.495793,-45.888165,170.535169
-    fetch(`https://www.strava.com/api/v3/segments/explore?bounds=${a_lat},${a_long},${b_lat},${b_long}&activity_type=running`, {
-      headers: {
-        Authorization: "Bearer 1e0c15bfece72d30bdc7fac56e3a90fae34508e8",
-        "Content-Type": "application/x-www-form-urlencoded"
-      }
-    }).then(response =>
-      response.json().then(payload => {
+    fetch(`/segments/explore/${a_lat}/${a_long}/${b_lat}/${b_long}`)
+      .then(res => res.json())
+      .then(payload => {
         const dupes = payload.segments.filter(s => this.state.segments.includes(s.id));
         console.log(payload.segments.length, dupes);
         const segments = payload.segments.filter(s => !this.state.segments.includes(s.id));
         this.setState({ segments: [...this.state.segments, ...segments] });
-        this.getCRs(payload.segments);
-      })
-    );
+        //this.getCRs(payload.segments);
+      });
   }
   convertSpeedToPace(speed) {
     const total_seconds = 1000 / speed;
@@ -250,32 +236,6 @@ class Zones extends Component {
     const zone_labels = ['Endurance', 'Moderate', 'Tempo', 'Threshold', 'Anaerobic'];
     return (
       <ul className="zones">{this.state.zones.map((z, index) => <li key={index}>{zone_labels[index]}:{z.min}-{z.max}</li>)}</ul>
-    );
-  }
-}
-
-class StravaAthlete extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      athlete: {},
-    }
-  }
-  componentDidMount() {
-    this.getAthlete(4734138);
-  }
-  getAthlete(athleteId) {
-    strava.athlete.get(
-      {'access_token':'1e0c15bfece72d30bdc7fac56e3a90fae34508e8', id: parseInt(athleteId, 10)},
-      (err, payload, limits) => err ? console.log(err) : this.setState({ athlete: payload }),
-    );
-  }
-  render() {
-    return (
-      <div>
-        <input type="text" onChange={(e) => this.getAthlete(e.target.value)} />
-        <pre>{JSON.stringify(this.state.athlete, null, 2)}</pre>
-      </div>
     );
   }
 }
