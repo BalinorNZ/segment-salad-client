@@ -42,16 +42,13 @@ class Segments extends Component {
       .then(res => res.json())
       .then(segments => this.setState({ segments }));
   }
-  getSegments(a_lat, a_long, b_lat, b_long) {
-
-  }
   convertSpeedToPace(speed) {
     const total_seconds = 1000 / speed;
     const pace_seconds = (total_seconds % 60).toFixed(1) < 10 ? '0'+(total_seconds % 60).toFixed(1) : (total_seconds % 60).toFixed(1);
     return `${Math.floor(total_seconds/60)}:${pace_seconds}`;
   }
   render() {
-    //console.log(this.state.segments);
+    // TODO: add sorting
     return (
     <div>
       <div>Segments: {this.state.segments.length}</div>
@@ -67,14 +64,14 @@ class Segments extends Component {
               <td>{s.avg_grade}</td>
               <td>{s.elev_difference}</td>
               <td>{s.entry_count ? s.entry_count : ''}</td>
-              <td>{s.cr ? s.cr.athlete_name : ''}</td>
-              <td>{s.cr ? this.convertSpeedToPace(s.cr.distance/s.cr.elapsed_time) : ''}</td>
-              <td>{s.cr ? s.cr.average_hr : ''}</td>
-              <td>{s.cr ? s.cr.distance : ''}</td>
-              <td>{s.cr ? s.cr.elapsed_time : ''}</td>
-              <td>{s.cr ? s.cr.moving_time : ''}</td>
-              <td>{s.cr ? s.cr.rank : ''}</td>
-              <td>{s.cr ? s.cr.start_date_local : ''}</td>
+              <td>{s.athlete_name}</td>
+              <td>{this.convertSpeedToPace(s.distance/s.elapsed_time)}</td>
+              <td>{s.average_hr}</td>
+              <td>{s.distance}</td>
+              <td>{s.elapsed_time}</td>
+              <td>{s.moving_time}</td>
+              <td>{s.rank}</td>
+              <td>{s.start_date_local}</td>
             </tr>
           )}
         </tbody>
