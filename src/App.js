@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Link, Route } from 'react-router-dom';
 import logo from './logo.svg';
 import './App.css';
 import moment from 'moment';
-const strava = require('strava-v3');
+import * as _ from 'lodash';
 
 
 class App extends Component {
@@ -31,8 +31,14 @@ class App extends Component {
   }
 }
 
+//
 class Segments extends Component {
-  state = { segments: [] };
+  state = {
+    segments: [],
+    isFetching: true,
+    sort: 'name',
+    order: 'ASC',
+  };
 
   componentDidMount() {
     //-45.911756,170.495793,-45.888165,170.535169
@@ -40,32 +46,53 @@ class Segments extends Component {
       { a_lat: -45.9100, a_long: 170.4544, b_lat: -45.8423, b_long: 170.5676 };
     fetch(`/segments/explore/${a_lat}/${a_long}/${b_lat}/${b_long}`)
       .then(res => res.json())
-      .then(segments => this.setState({ segments }));
+      .then(segments => segments.map(s => Object.assign({}, s, { speed: s.distance/s.elapsed_time })))
+      .then(segments => this.setState(Object.assign({}, this.state, { segments, isFetching: false })));
   }
   convertSpeedToPace(speed) {
     const total_seconds = 1000 / speed;
     const pace_seconds = (total_seconds % 60).toFixed(1) < 10 ? '0'+(total_seconds % 60).toFixed(1) : (total_seconds % 60).toFixed(1);
     return `${Math.floor(total_seconds/60)}:${pace_seconds}`;
   }
+  sortSegments(field) {
+    console.log(field, this.state.order);
+    this.state.order === 'ASC' ? this.setState(Object.assign({}, this.state, { sort: field, order: 'DESC' }))
+    : this.setState(Object.assign({}, this.state, { sort: field, order: 'ASC' }));
+  }
   render() {
-    // TODO: add sorting
+    if(this.state.isFetching) return(<Spinner />);
+
+    let sorted_segments = _.sortBy(this.state.segments, (segment) => segment[this.state.sort]);
+    if(this.state.order === 'DESC') sorted_segments = sorted_segments.reverse();
     return (
     <div>
-      <div>Segments: {this.state.segments.length}</div>
+      <div>Segments: {sorted_segments.length}</div>
       <table>
         <thead>
-        <tr><th>Name</th><th>Distance</th><th>Grade</th><th>Elevation</th><th>Efforts</th><th>CR Holder</th><th>Pace</th><th>HR</th><th>Distance</th><th>Elapsed</th><th>Moving</th><th>Rank</th><th>Date</th></tr>
+        <tr>
+          <th onClick={() => this.sortSegments('name')}>Name</th>
+          <th onClick={() => this.sortSegments('avg_grade')}>Grade</th>
+          <th onClick={() => this.sortSegments('elev_difference')}>Elevation</th>
+          <th onClick={() => this.sortSegments('entry_count')}>Efforts</th>
+          <th onClick={() => this.sortSegments('athlete_name')}>CR Holder</th>
+          <th onClick={() => this.sortSegments('speed')}>Pace</th>
+          <th onClick={() => this.sortSegments('average_hr')}>HR</th>
+          <th onClick={() => this.sortSegments('distance')}>Distance</th>
+          <th onClick={() => this.sortSegments('elapsed_time')}>Elapsed</th>
+          <th onClick={() => this.sortSegments('moving_time')}>Moving</th>
+          <th onClick={() => this.sortSegments('rank')}>Rank</th>
+          <th>Date</th>
+        </tr>
         </thead>
         <tbody>
-        {this.state.segments && this.state.segments.map(s =>
-            <tr key={s.id} id={s.id}>
+        {sorted_segments && sorted_segments.map(s =>
+            <tr key={s.id+s.activity_id} id={s.id}>
               <td>{s.name}</td>
-              <td>{s.distance}</td>
               <td>{s.avg_grade}</td>
               <td>{s.elev_difference}</td>
               <td>{s.entry_count ? s.entry_count : ''}</td>
               <td>{s.athlete_name}</td>
-              <td>{this.convertSpeedToPace(s.distance/s.elapsed_time)}</td>
+              <td>{this.convertSpeedToPace(s.speed)}</td>
               <td>{s.average_hr}</td>
               <td>{s.distance}</td>
               <td>{s.elapsed_time}</td>
@@ -82,7 +109,7 @@ class Segments extends Component {
 }
 
 class Activities extends Component {
-  state = { activities: [] };
+  state = { activities: [], isFetching: true };
 
   componentDidMount() {
     this.getActivities(1);
@@ -90,7 +117,7 @@ class Activities extends Component {
   getActivities(page) {
     fetch(`/activities/${page}`)
       .then(res => res.json())
-      .then(activities => this.setState({ activities }));
+      .then(activities => this.setState({ activities, isFetching: false }));
   }
   handleClick(e) {
     e.preventDefault();
@@ -110,6 +137,8 @@ class Activities extends Component {
     return (hr/speed).toFixed(0);
   }
   render() {
+    if(this.state.isFetching) return(<Spinner />);
+
     return (
       <div>
         <Zones />
@@ -180,5 +209,22 @@ class Zones extends Component {
     );
   }
 }
+
+const Spinner = (props) => (
+  <div className="sk-circle">
+    <div className="sk-circle1 sk-child"></div>
+    <div className="sk-circle2 sk-child"></div>
+    <div className="sk-circle3 sk-child"></div>
+    <div className="sk-circle4 sk-child"></div>
+    <div className="sk-circle5 sk-child"></div>
+    <div className="sk-circle6 sk-child"></div>
+    <div className="sk-circle7 sk-child"></div>
+    <div className="sk-circle8 sk-child"></div>
+    <div className="sk-circle9 sk-child"></div>
+    <div className="sk-circle10 sk-child"></div>
+    <div className="sk-circle11 sk-child"></div>
+    <div className="sk-circle12 sk-child"></div>
+  </div>
+);
 
 export default App;
