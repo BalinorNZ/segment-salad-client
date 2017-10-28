@@ -31,7 +31,6 @@ class App extends Component {
   }
 }
 
-//
 class Segments extends Component {
   state = {
     segments: [],
@@ -70,6 +69,7 @@ class Segments extends Component {
       <table>
         <thead>
         <tr>
+          <th></th>
           <th onClick={() => this.sortSegments('name')}>Name</th>
           <th onClick={() => this.sortSegments('avg_grade')}>Grade</th>
           <th onClick={() => this.sortSegments('elev_difference')}>Elevation</th>
@@ -85,8 +85,9 @@ class Segments extends Component {
         </tr>
         </thead>
         <tbody>
-        {sorted_segments && sorted_segments.map(s =>
+        {sorted_segments && sorted_segments.map((s, index) =>
             <tr key={s.id+s.activity_id} id={s.id}>
+              <td>{index+1}</td>
               <td>{s.name}</td>
               <td>{s.avg_grade}</td>
               <td>{s.elev_difference}</td>
