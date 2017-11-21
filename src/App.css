@@ -22,8 +22,14 @@
   to { transform: rotate(360deg); }
 }
 
+.segment-view, .athlete-view {
+  width: 1280px;
+  margin: auto;
+}
+
 table {
   border: 1px black solid;
+  min-width: 1280px;
 }
 td {
   padding-right: 20px;
@@ -45,7 +51,7 @@ ul.zones {
   margin-left: auto;
   margin-right: auto;
   margin-bottom: 0px;
-  border-top: 1px solid #999;
+  margin-top: 20px;
   z-index: 1;
 }
 

@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import { BrowserRouter as Router, Link, Route } from 'react-router-dom';
-import logo from './logo.svg';
 import './App.css';
+import 'mapbox-gl/dist/mapbox-gl.css';
+import mapboxgl from 'mapbox-gl';
 import moment from 'moment';
 import * as _ from 'lodash';
 
@@ -10,10 +11,7 @@ class App extends Component {
   render() {
     return (
       <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-        </header>
-
+        <Mapbox />
         <Router>
           <div>
             <div className="tabs" id="navcontainer">
@@ -30,6 +28,64 @@ class App extends Component {
     );
   }
 }
+
+class Mapbox extends React.Component {
+  componentDidMount() {
+    mapboxgl.accessToken = 'pk.eyJ1IjoibmljYmF0aGdhdGUiLCJhIjoiY2phOWYxcjQ3MGg2ZzMwcTlhamJ6Z21pMiJ9.kA5eVyN3PH56G-5u56-Q4A';
+    this.map = new mapboxgl.Map({
+      container: this.mapContainer,
+      style: 'mapbox://styles/mapbox/streets-v10',
+      center: [170.5000, -45.8758],
+      zoom: 11,
+      minZoom: 9,
+      maxZoom: 24,
+    });
+    this.map.addControl(new mapboxgl.NavigationControl());
+    // TODO get list of GeoJSON lines for segments, programatically render them
+    this.map.on('load', function () {
+      this.addLayer({
+        "id": "route",
+        "type": "line",
+        "source": {
+          "type": "geojson",
+          "data": {
+            "type": "Feature",
+            "properties": {},
+            "geometry": {
+              "type": "LineString",
+              "coordinates": [
+                [170.4544, -45.9100],
+                [170.5676, -45.8423],
+              ]
+            }
+          }
+        },
+        "layout": {
+          "line-join": "round",
+          "line-cap": "round"
+        },
+        "paint": {
+          "line-color": "#ff7200",
+          "line-width": 3
+        }
+      });
+    });
+  }
+  componentWillUnmount() {
+    this.map.remove();
+  }
+  render() {
+    const style = {
+      position: 'relative',
+      top: 0,
+      bottom: 0,
+      width: '100%',
+      height: '400px',
+    };
+    return <div style={style} ref={el => this.mapContainer = el} />;
+  }
+}
+
 
 class Segments extends Component {
   state = {
@@ -64,7 +120,7 @@ class Segments extends Component {
     let sorted_segments = _.sortBy(this.state.segments, (segment) => segment[this.state.sort]);
     if(this.state.order === 'DESC') sorted_segments = sorted_segments.reverse();
     return (
-    <div>
+    <div class="segment-view">
       <div>Segments: {sorted_segments.length}</div>
       <table>
         <thead>
@@ -141,7 +197,7 @@ class Activities extends Component {
     if(this.state.isFetching) return(<Spinner />);
 
     return (
-      <div>
+      <div class="athlete-view">
         <Zones />
         <Pagination getActivities={this.handleClick.bind(this)} />
         <table>
