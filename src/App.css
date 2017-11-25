@@ -26,14 +26,27 @@
   width: 1280px;
   margin: auto;
 }
+.segment-view .date {
+  min-width: 116px;
+}
+
+.segment-name {
+  max-width: 240px;
+}
+.athlete-name {
+  max-width: 120px;
+}
 
 table {
   border: 1px black solid;
-  min-width: 1280px;
+  width: 1280px;
 }
 td {
-  padding-right: 20px;
+  padding: 3px 5px;
   border: 1px solid black;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow:ellipsis;
 }
 th {
   text-align: left;
