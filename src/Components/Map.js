@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import 'mapbox-gl/dist/mapbox-gl.css';
-import mapboxgl from 'mapbox-gl';
-import ReactMapboxGl, { Layer, Feature, Source, GeoJSONLayer  } from "react-mapbox-gl";
+import ReactMapboxGl, { Layer, Feature, Source, GeoJSONLayer, ZoomControl, ScaleControl, RotationControl } from "react-mapbox-gl";
 import polyline from 'polyline';
 
 const Map = ReactMapboxGl({
@@ -13,112 +12,6 @@ const Map = ReactMapboxGl({
 });
 
 class Mapbox extends Component {
-  componentDidMount() {
-    // mapboxgl.accessToken = 'pk.eyJ1IjoibmljYmF0aGdhdGUiLCJhIjoiY2phOWYxcjQ3MGg2ZzMwcTlhamJ6Z21pMiJ9.kA5eVyN3PH56G-5u56-Q4A';
-    // this.map = new mapboxgl.Map({
-    //   container: this.mapContainer,
-    //   style: 'mapbox://styles/mapbox/dark-v9',
-    //   center: [170.5000, -45.8758],
-    //   zoom: 11,
-    //   minZoom: 9,
-    //   maxZoom: 24,
-    // });
-    // this.map.addControl(new mapboxgl.NavigationControl());
-    // Create a popup, but don't add it to the map yet.
-    // this.popup = new mapboxgl.Popup({
-    //   closeButton: false,
-    //   closeOnClick: true
-    // });
-    // Create a geoJSON to put 'features' in
-    // this.geojson = {
-    //   type: 'FeatureCollection',
-    //   features: [],
-    // };
-    // this.map.addLayer({
-    //   "id": "segmentIcons",
-    //   "type": "circle",
-    //   "source": {
-    //     type: 'vector',
-    //     url: 'mapbox://examples.8fgz4egr'
-    //   },
-    // });
-  }
-  componentDidUpdate() {
-    /*    if(this.props.segments.length) {
-          //this.props.segments.map(s => console.log(s.speed*15 + s.name));
-          this.props.segments.map(s => {
-            const latlong = polyline.decode(s.points).map(latlong => [latlong[1], latlong[0]]);
-            const segmentPopup = new mapboxgl.Popup({
-              closeButton: false,
-              closeOnClick: true
-            });
-            segmentPopup
-              .setLngLat(latlong[0])
-              .setHTML(`<p>${s.name}</p>`)
-              .addTo(this.map);
-            this.geojson.features.push({
-              type: 'Feature',
-              geometry: { type: 'Point', coordinates: latlong[0] },
-              properties: { title: s.name, description: 'Description text here.' }
-            });
-            // create a HTML element for each feature
-            const el = React.createElement('div', { class: 'marker'});
-            // make a marker for the feature and add to the map
-            // TODO: use react-mapbox-gl to do this
-            // new mapboxgl.Marker(el)
-            //   .setLngLat(latlong[0])
-            //   .addTo(this.map);
-            this.addSegmentLine(s.segment_id, s.speed, latlong);
-          });
-        }*/
-  }
-  //
-  //   this.map.on('mouseenter', 'places', function(e) {
-  //     // Change the cursor style as a UI indicator.
-  //     this.map.getCanvas().style.cursor = 'pointer';
-  //
-  //     // Populate the popup and set its coordinates
-  //     // based on the feature found.
-  //     popup.setLngLat(latlong[0])
-  //       .setHTML('test test')
-  //       .addTo(this.map);
-  //   });
-  //
-  //   this.map.on('mouseleave', 'places', function() {
-  //     this.map.getCanvas().style.cursor = '';
-  //     popup.remove();
-  //   });
-  // }
-  addSegmentLine(name, speed, latlong) {
-    if(this.map.getLayer(name)) return;
-    this.map.addLayer({
-      "id": name,
-      "type": "line",
-      "source": {
-        "type": "geojson",
-        "data": {
-          "type": "Feature",
-          "properties": {},
-          "geometry": {
-            "type": "LineString",
-            "coordinates": latlong,
-          }
-        }
-      },
-      "layout": {
-        "line-join": "round",
-        "line-cap": "round"
-      },
-      "paint": {
-        "line-color": hslToHex(speed*15, 100, 50),//"#ff7200",
-        "line-width": 2,
-        "line-opacity": 0.5,
-      }
-    });
-  }
-  componentWillUnmount() {
-    // this.map.remove();
-  }
   render() {
     const containerStyle = {
       position: 'relative',
@@ -135,47 +28,95 @@ class Mapbox extends Component {
       minZoom: 9,
       maxZoom: 24,
     };
-
-    let renderedSegments = [];
     return <div>
       <Map {...mapProps}>
-        {this.props.segments.map(s => {
-          if(!renderedSegments.includes(s.id)) {
-            renderedSegments.push(s.id);
-            const latlong = polyline.decode(s.points).map(latlong => [latlong[1], latlong[0]]);
-            const geojson = {
-              "type": "Feature",
-              "properties": {},
-              "geometry": {
-                "type": "LineString",
-                "coordinates": latlong,
-              }
-            };
-            return [
-              <GeoJSONLayer
-                data={geojson}
-                linePaint={{
-                  "line-color": hslToHex(s.speed*15, 100, 50),//"#ff7200",
-                  "line-width": 2,
-                  "line-opacity": 0.5,
-                }}
-                layerOptions={{
-                  "line-join": "round",
-                  "line-cap": "round"
-                }}
-              />
-            ];
-            //   <Layer type="symbol" id={s.id} layout={{ "icon-image": "marker-15" }}>
-            //     <Feature coordinates={latlong[0]}/>
-            //   </Layer>
-          }
-        })}
+        <ZoomControl />
+        <ScaleControl />
+        <RotationControl />
+        {this.props.segments.map(segment => <SegmentLine segment={segment} />)}
       </Map>
     </div>;
   }
 }
 
+const SegmentLine = ({segment}) => ({
+  render() {
+    const latlong = polyline.decode(segment.points).map(latlong => [latlong[1], latlong[0]]);
+    const geojson = {
+      "type": "Feature",
+      "properties": {},
+      "geometry": {
+        "type": "LineString",
+        "coordinates": latlong,
+      }
+    };
+    return [
+      <GeoJSONLayer
+        data={geojson}
+        linePaint={{
+          "line-color": hslToHex(segment.speed*15, 100, 50),//"#ff7200",
+          "line-width": 2,
+          "line-opacity": 0.5,
+        }}
+        lineLayout={{
+          "line-join": "round",
+          "line-cap": "round",
+        }}
+      />,
+      //   <Layer type="symbol" id={segment.id} layout={{ "icon-image": "marker-15" }}>
+      //     <Feature coordinates={latlong[0]}/>
+      //   </Layer>
+    ];
+  }
+});
+
 export default Mapbox;
+
+// componentDidUpdate() {
+//   if(this.props.segments.length) {
+//     //this.props.segments.map(s => console.log(s.speed*15 + s.name));
+//     this.props.segments.map(s => {
+//       const latlong = polyline.decode(s.points).map(latlong => [latlong[1], latlong[0]]);
+//       const segmentPopup = new mapboxgl.Popup({
+//         closeButton: false,
+//         closeOnClick: true
+//       });
+//       segmentPopup
+//         .setLngLat(latlong[0])
+//         .setHTML(`<p>${s.name}</p>`)
+//         .addTo(this.map);
+//       this.geojson.features.push({
+//         type: 'Feature',
+//         geometry: { type: 'Point', coordinates: latlong[0] },
+//         properties: { title: s.name, description: 'Description text here.' }
+//       });
+//       // create a HTML element for each feature
+//       const el = React.createElement('div', { class: 'marker'});
+//       // make a marker for the feature and add to the map
+//       new mapboxgl.Marker(el)
+//         .setLngLat(latlong[0])
+//         .addTo(this.map);
+//       this.addSegmentLine(s.segment_id, s.speed, latlong);
+//     });
+//   }
+// }
+//
+//   this.map.on('mouseenter', 'places', function(e) {
+//     // Change the cursor style as a UI indicator.
+//     this.map.getCanvas().style.cursor = 'pointer';
+//
+//     // Populate the popup and set its coordinates
+//     // based on the feature found.
+//     popup.setLngLat(latlong[0])
+//       .setHTML('test test')
+//       .addTo(this.map);
+//   });
+//
+//   this.map.on('mouseleave', 'places', function() {
+//     this.map.getCanvas().style.cursor = '';
+//     popup.remove();
+//   });
+// }
 
 function hslToHex(h, s, l) {
   h /= 360;
