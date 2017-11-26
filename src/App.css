@@ -238,6 +238,9 @@ ul.zones {
 .mapboxgl-popup-tip {
   border-top-color: rgba(255, 255, 255, 0.8) !important;
   border-bottom-color: rgba(255, 255, 255, 0.8) !important;
+  -webkit-align-self: center;
+  align-self: center;
+  border-bottom: none;
 }
 .mapboxgl-popup-content p {
   margin: 0;

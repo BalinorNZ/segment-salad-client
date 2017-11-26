@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import 'mapbox-gl/dist/mapbox-gl.css';
-import ReactMapboxGl, { Layer, Feature, Source, GeoJSONLayer, ZoomControl, ScaleControl, RotationControl } from "react-mapbox-gl";
+import ReactMapboxGl, { Layer, Feature, Popup, GeoJSONLayer, ZoomControl, ScaleControl, RotationControl } from "react-mapbox-gl";
 import polyline from 'polyline';
 
 const Map = ReactMapboxGl({
@@ -12,7 +12,10 @@ const Map = ReactMapboxGl({
 });
 
 class Mapbox extends Component {
-  render() {
+  state = {
+    popup: undefined,
+  };
+  componentWillMount() {
     const containerStyle = {
       position: 'relative',
       top: 0,
@@ -20,27 +23,58 @@ class Mapbox extends Component {
       width: '100%',
       height: '400px',
     };
-    const mapProps = {
+    this.mapProps = {
       containerStyle,
       style: 'mapbox://styles/mapbox/dark-v9',
       center: [170.5000, -45.8758],
       zoom: [11],
       minZoom: 9,
       maxZoom: 24,
+      cursor: 'pointer',
+      onClick: () => this.unsetPopup(),
     };
-    return <div>
-      <Map {...mapProps}>
+  }
+  unsetPopup = () => {
+    this.setState({ popup: undefined });
+  };
+  onClickLine = (coordinates, segment) => {
+    this.setState({ popup: { coordinates, segment }});
+  };
+  render() {
+    return <Map {...this.mapProps}>
         <ZoomControl />
         <ScaleControl />
         <RotationControl />
-        {this.props.segments.map(segment => <SegmentLine segment={segment} />)}
-      </Map>
-    </div>;
+        {this.state.popup &&
+          <Popup coordinates={this.state.popup.coordinates}
+                 anchor={'bottom'}
+                 offset={0}
+                 closeButton={true}
+                 closeOnClick={true}>
+            <b>{this.state.popup.segment.name}</b>
+            <p>CR: {this.state.popup.segment.athlete_name}</p>
+            <p>Total athletes: {this.state.popup.segment.entry_count}</p>
+          </Popup>
+        }
+        {this.props.segments.slice(0, 100).map(segment =>
+          <SegmentLine key={`${segment.activity_id}-${segment.id}`}
+                       id={`${segment.activity_id}-${segment.id}`}
+                       segment={segment}
+                       onClickLine={this.onClickLine}
+                       unsetPopup={this.unsetPopup}
+          />)
+        }
+      </Map>;
   }
 }
 
-const SegmentLine = ({segment}) => ({
+class SegmentLine extends Component {
+  onToggleHover(e, pointer) {
+    console.log(e);
+    e.target.getCanvas().style.cursor = pointer;
+  };
   render() {
+    const { id, segment } = this.props;
     const latlong = polyline.decode(segment.points).map(latlong => [latlong[1], latlong[0]]);
     const geojson = {
       "type": "Feature",
@@ -52,6 +86,7 @@ const SegmentLine = ({segment}) => ({
     };
     return [
       <GeoJSONLayer
+        key={id}
         data={geojson}
         linePaint={{
           "line-color": hslToHex(segment.speed*15, 100, 50),//"#ff7200",
@@ -62,13 +97,16 @@ const SegmentLine = ({segment}) => ({
           "line-join": "round",
           "line-cap": "round",
         }}
+        lineOnMouseEnter={(e) => this.onToggleHover(e, 'pointer')}
+        lineOnMouseLeave={(e) => this.onToggleHover(e, '')}
+        lineOnClick={() => this.props.onClickLine(latlong[0], segment)}
       />,
       //   <Layer type="symbol" id={segment.id} layout={{ "icon-image": "marker-15" }}>
       //     <Feature coordinates={latlong[0]}/>
       //   </Layer>
     ];
   }
-});
+};
 
 export default Mapbox;
 
