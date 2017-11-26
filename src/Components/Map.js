@@ -21,7 +21,7 @@ class Mapbox extends Component {
       top: 0,
       bottom: 0,
       width: '100%',
-      height: '400px',
+      height: '600px',
     };
     this.mapProps = {
       containerStyle,
@@ -51,9 +51,10 @@ class Mapbox extends Component {
                  offset={0}
                  closeButton={true}
                  closeOnClick={true}>
-            <b>{this.state.popup.segment.name}</b>
-            <p>CR: {this.state.popup.segment.athlete_name}</p>
-            <p>Total athletes: {this.state.popup.segment.entry_count}</p>
+            <PopupContent segment={this.state.popup.segment} />
+            {/*<b>{this.state.popup.segment.name}</b>*/}
+            {/*<p>CR: {this.state.popup.segment.athlete_name}</p>*/}
+            {/*<p>Total athletes: {this.state.popup.segment.entry_count}</p>*/}
           </Popup>
         }
         {this.props.segments.slice(0, 100).map(segment =>
@@ -66,6 +67,81 @@ class Mapbox extends Component {
         }
       </Map>;
   }
+}
+
+const PopupContent = ({segment}) => (
+  <div className="popup-content-wrapper">
+    <div className="segment-info-popup segment-info-box">
+      <div className="info-box-header">
+        <h1>{segment.name}</h1>
+      </div>
+      <div className="clear"></div>
+      <div className="general-info">
+        <div className="stat">
+          <strong>{segment.distance < 1000 ? segment.distance+' m' : segment.distance/1000 + ' km'}</strong>
+          <br />
+          <span className="label">Distance</span>
+        </div>
+        <div className="stat">
+          <strong>{segment.avg_grade}%</strong>
+          <br />
+          <span className="label">Grade</span>
+        </div>
+        <div className="spacer stat">
+          <strong>{segment.elev_difference} m</strong>
+          <br />
+          <span className="label">Elev Gain</span>
+        </div>
+        <div className="stat">
+          {segment.entry_count}
+          <br />
+          <span className="label">Athletes</span>
+        </div>
+        <div className="clear"></div>
+        <div className="records">
+          <div className="avatar avatar-athlete avatar-md">
+            <img src={segment.athlete_profile} />
+          </div>
+          <div className="record-stat">
+            <strong>Your Best: </strong>
+            <a href="/segment_efforts/23726642266" target="_blank">
+              {secondsToHms(segment.elapsed_time)}
+            </a>
+            <span> ({convertSpeedToPace(segment.speed)}/km)</span>
+          </div>
+          <div className="record-stat">
+            <strong>+/-CR </strong>
+            <span className="">0s </span>
+            (<a href="/athletes/8392597" target="_blank">{segment.athlete_name}</a>)
+          </div>
+        </div>
+        <div className="clear"></div>
+      </div>
+      <div className="details-link explorer-performance-goals-beta">
+        <a className="alt button create-goal" href="/segments/11786633">
+          Set Goal
+        </a>
+        <a className="alt button" target="_blank" href="/segments/11786633">
+          View Details
+        </a>
+        <div className="clear"></div>
+      </div>
+    </div>
+  </div>
+);
+function secondsToHms(d) {
+  d = Number(d);
+  var h = Math.floor(d / 3600);
+  var m = Math.floor(d % 3600 / 60);
+  var s = Math.floor(d % 3600 % 60);
+  return h > 0 ? ('0' + h).slice(-2) + ":" + ('0' + m).slice(-2) + ":" + ('0' + s).slice(-2)
+    : ('0' + m).slice(-2) + ":" + ('0' + s).slice(-2);
+}
+function convertSpeedToPace(speed) {
+  const total_seconds = 1000 / speed;
+  const pace_seconds =
+    (total_seconds % 60).toFixed(1) < 10 ? '0'+(total_seconds % 60).toFixed(0) : (total_seconds % 60).toFixed(0);
+  return `${Math.floor(total_seconds/60)}:${pace_seconds}`;
 }
 
 class SegmentLine extends Component {

@@ -1,3 +1,8 @@
+body {
+  font-size: 14px;
+  font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;
+}
+
 .App {
 }
 
@@ -227,6 +232,14 @@ ul.zones {
     }
 }
 
+.marker {
+  color: lawngreen;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
 .mapboxgl-popup-content {
   color: black;
   font-size: 1.2em;
@@ -234,6 +247,15 @@ ul.zones {
   text-overflow: ellipsis;
   background: rgba(255, 255, 255, 0.8) !important;
   padding: 5px 10px !important;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+  border-radius: 3px;
+
+  text-align: left;
+  pointer-events: all;
+  padding: 10px 10px 15px;
+  margin: 0;
+  line-height: inherit;
+  width: 301px;
 }
 .mapboxgl-popup-tip {
   border-top-color: rgba(255, 255, 255, 0.8) !important;
@@ -246,10 +268,110 @@ ul.zones {
   margin: 0;
 }
 
-.marker {
-  color: lawngreen;
-  width: 50px;
-  height: 50px;
+.popup-content-wrapper {
+  /*background: #fff;*/
+  /*padding: 1px;*/
+}
+.info-box-header h1 {
+  color: #000;
+  font-size: 1.35em;
+  margin-bottom: 0;
+  max-width: 90%;
+  overflow: hidden;
+  line-height: normal;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding-left: 5%;
+}
+.clear {
+  clear: both;
+  float: none;
+}
+.segment-info-box .general-info {
+  padding: 0 10px;
+  width: 94%;
+}
+.segment-info-box .details-link {
+  text-align: center;
+  display: block;
+  width: 100%;
+  padding: 10px;
+  box-sizing: border-box;
+}
+.segment-info-box .details-link .button {
+  display: inline-block;
+  width: 49.47%;
+  white-space: normal;
+  background-color: #fc4c02;
+  height: 44px;
+  line-height: 44px;
+  color: white;
+  text-decoration: none;
+}
+.segment-info-box .details-link .button:first-child {
+  margin-right: 3px;
+}
+.segment-info-box .general-info .stat {
+  float: left;
+  line-height: 1em;
+  padding: 0 8px;
+  margin: 0.7em 0;
+}
+.segment-info-box .general-info .stat span.label {
+  color: #505050;
+  font-size: 0.7em;
+  text-transform: uppercase;
+  margin: 0;
+}
+.segment-info-box .general-info .stat.spacer {
+  border-right: 1px solid #b5b5b9;
+}
+.segment-info-box .records {
+  padding: 10px;
+  background-color: rgba(185, 185, 185, 0.8);
+  min-height: 48px;
+}
+.segment-info-box .records .avatar {
+  float: left;
+}
+.avatar-md, .avatar-md .avatar-img {
+  height: 48px;
+  width: 48px;
+}
+.avatar-athlete img, .avatar-athlete .avatar-img {
   border-radius: 50%;
-  cursor: pointer;
+  background-color: #f5f5fa;
+  width: 100%;
+  height: 100%;
+  display: block;
+  border: 0;
+  font-size: 10px;
+  line-height: 1.2em;
+}
+.segment-info-box .records .record-stat {
+  margin: 2px 0 3px 60px;
+}
+.leaflet-container a {
+  color: #3887BE;
+  font-weight: normal;
+  text-decoration: none;
+}
+.segment-info-box .records .record-stat span.minus {
+  color: #fc4c02;
+  font-weight: bold;
+}
+h1 {
+  font-weight: 300;
+  font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;
+  letter-spacing: -0.01em;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+.record-stat a{
+  color: #3887BE;
+  font-weight: normal;
+  text-decoration: none;
+}
+strong {
+  font-weight: 600;
 }
