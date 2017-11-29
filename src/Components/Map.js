@@ -77,13 +77,19 @@ export default Mapbox;
 class SegmentLine extends Component {
   state = {
     lineOpacity: 0.5,
+    lineWidth: 2,
+    endPoint: undefined,
   };
   onMarkerClick(coord, segment) {
-    this.setState({ lineOpacity: 1 });
     this.props.onClickLine(coord, segment);
   }
+  onMarkerHover(endPoint) {
+    this.setState({ lineOpacity: 1, lineWidth: 3, endPoint });
+  }
+  onMarkerLeave(endPoint) {
+    this.setState({ lineOpacity: 0.5, lineWidth: 2, endPoint: undefined });
+  }
   onToggleHover(e, pointer) {
-    console.log(e);
     e.target.getCanvas().style.cursor = pointer;
   };
   getInitials(name) {
@@ -111,14 +117,15 @@ class SegmentLine extends Component {
         cursor: 'pointer',
         marginTop: -5,
     };
-    // TODO: Add hover effect to segment line (increase opacity), finish circle symbol
-    return [
+
+    // TODO: Add finish circle symbol on segment marker hover
+    return <div>
       <GeoJSONLayer
         key={id}
         data={geojson}
         linePaint={{
           "line-color": hslToHex(segment.speed*15, 100, 50),//"#ff7200",
-          "line-width": 2,
+          "line-width": this.state.lineWidth,
           "line-opacity": this.state.lineOpacity,
         }}
         lineLayout={{
@@ -128,17 +135,25 @@ class SegmentLine extends Component {
         // lineOnMouseEnter={(e) => this.onToggleHover(e, 'pointer')}
         // lineOnMouseLeave={(e) => this.onToggleHover(e, '')}
         // lineOnClick={() => this.props.onClickLine(latlong[0], segment)}
-      />,
+      />
       <Marker key={`${segment.activity_id}-${segment.id}`}
               style={markerStyle}
+              className="startMarker"
               coordinates={latlong[0]}
               onClick={() => this.onMarkerClick(latlong[0], segment)}
-              onHover
+              onMouseEnter={() => this.onMarkerHover(latlong[latlong.length-1])}
+              onMouseLeave={() => this.onMarkerLeave(latlong[latlong.length-1])}
       >
         <div className="athlete-initials"><span>{this.getInitials(segment.athlete_name)}</span></div>
-      </Marker>,
-
-    ];
+      </Marker>
+      {this.state.endPoint &&
+      <Marker key={`end-${segment.activity_id}-${segment.id}`}
+              className="endMarker"
+              coordinates={this.state.endPoint}
+      >
+      </Marker>
+      }
+    </div>;
   }
 }
 
