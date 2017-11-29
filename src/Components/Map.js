@@ -1,14 +1,10 @@
 import React, { Component } from 'react';
 import 'mapbox-gl/dist/mapbox-gl.css';
-import ReactMapboxGl, { Layer, Feature, Popup, GeoJSONLayer, ZoomControl, ScaleControl, RotationControl } from "react-mapbox-gl";
+import ReactMapboxGl, { Layer, Feature, Marker, Popup, GeoJSONLayer, ZoomControl, ScaleControl, RotationControl } from "react-mapbox-gl";
 import polyline from 'polyline';
 
 const Map = ReactMapboxGl({
   accessToken: 'pk.eyJ1IjoibmljYmF0aGdhdGUiLCJhIjoiY2phOWYxcjQ3MGg2ZzMwcTlhamJ6Z21pMiJ9.kA5eVyN3PH56G-5u56-Q4A',
-  center: [170.5000, -45.8758],
-  zoom: 11,
-  minZoom: 9,
-  maxZoom: 24,
 });
 
 class Mapbox extends Component {
@@ -27,7 +23,7 @@ class Mapbox extends Component {
       containerStyle,
       style: 'mapbox://styles/mapbox/dark-v9',
       center: [170.5000, -45.8758],
-      zoom: [11],
+      zoom: [12],
       minZoom: 9,
       maxZoom: 24,
       cursor: 'pointer',
@@ -40,6 +36,17 @@ class Mapbox extends Component {
   onClickLine = (coordinates, segment) => {
     this.setState({ popup: { coordinates, segment }});
   };
+
+  // TODO: Display segment distance as well as effort distance (currently displaying effort distance)
+  // TODO: Make popup buttons change table below the map?
+  // TODO: send current athlete effort data to popup for comparison with CR (generate percentile)
+  // TODO: add segment filters/search to map (below x elevation/pace/distance etc)
+
+  // TODO: Lazy draw segments to improve perf
+  // or
+  // TODO: turn segment GeoJSON lines into a tileset for better render performance
+  //   - draw just the one highlighted GeoJSON polyline for the given marker when segment marker is selected/hovered
+
   render() {
     return <Map {...this.mapProps}>
         <ZoomControl />
@@ -52,9 +59,6 @@ class Mapbox extends Component {
                  closeButton={true}
                  closeOnClick={true}>
             <PopupContent segment={this.state.popup.segment} />
-            {/*<b>{this.state.popup.segment.name}</b>*/}
-            {/*<p>CR: {this.state.popup.segment.athlete_name}</p>*/}
-            {/*<p>Total athletes: {this.state.popup.segment.entry_count}</p>*/}
           </Popup>
         }
         {this.props.segments.slice(0, 100).map(segment =>
@@ -68,6 +72,105 @@ class Mapbox extends Component {
       </Map>;
   }
 }
+export default Mapbox;
+
+class SegmentLine extends Component {
+  state = {
+    lineOpacity: 0.5,
+  };
+  onMarkerClick(coord, segment) {
+    this.setState({ lineOpacity: 1 });
+    this.props.onClickLine(coord, segment);
+  }
+  onToggleHover(e, pointer) {
+    console.log(e);
+    e.target.getCanvas().style.cursor = pointer;
+  };
+  getInitials(name) {
+    return name.split(" ").map(part => part.charAt(0).toUpperCase()).join('').slice(0, 2);
+  }
+  render() {
+    const { id, segment } = this.props;
+    const latlong = polyline.decode(segment.points).map(latlong => [latlong[1], latlong[0]]);
+    const geojson = {
+      "type": "Feature",
+      "properties": {},
+      "geometry": {
+        "type": "LineString",
+        "coordinates": latlong,
+      }
+    };
+    const markerStyle = {
+        width: 32,
+        height: 32,
+        borderRadius: '50%',
+        backgroundColor: '#ff5107',//'#fc4c02',
+        backgroundImage: `url("${segment.athlete_profile}")`,
+        backgroundSize: 'cover',
+        border: '2px solid black',
+        cursor: 'pointer',
+        marginTop: -5,
+    };
+    // TODO: Add hover effect to segment line (increase opacity), finish circle symbol
+    return [
+      <GeoJSONLayer
+        key={id}
+        data={geojson}
+        linePaint={{
+          "line-color": hslToHex(segment.speed*15, 100, 50),//"#ff7200",
+          "line-width": 2,
+          "line-opacity": this.state.lineOpacity,
+        }}
+        lineLayout={{
+          "line-join": "round",
+          "line-cap": "round",
+        }}
+        // lineOnMouseEnter={(e) => this.onToggleHover(e, 'pointer')}
+        // lineOnMouseLeave={(e) => this.onToggleHover(e, '')}
+        // lineOnClick={() => this.props.onClickLine(latlong[0], segment)}
+      />,
+      <Marker key={`${segment.activity_id}-${segment.id}`}
+              style={markerStyle}
+              coordinates={latlong[0]}
+              onClick={() => this.onMarkerClick(latlong[0], segment)}
+              onHover
+      >
+        <div className="athlete-initials"><span>{this.getInitials(segment.athlete_name)}</span></div>
+      </Marker>,
+
+    ];
+  }
+}
+
+// const clusterMarker = (coordinates, pointCount, getLeaves) =>
+//   (Array) => (
+//   <Marker
+//     key={coordinates.toString()}
+//     coordinates={coordinates}
+//     style={styles.clusterMarker}
+//     onClick={this.clusterClick.bind(this, coordinates, pointCount, getLeaves)}
+//   >
+//     <div>{pointCount}</div>
+//   </Marker>
+// );
+
+const HightlightedSegmentLine = ({id, geojson, speed}) => {
+  return [
+    <GeoJSONLayer
+      key={id}
+      data={geojson}
+      linePaint={{
+        "line-color": hslToHex(speed*15, 100, 50),
+        "line-width": 2,
+        "line-opacity": 0.5,
+      }}
+      lineLayout={{
+        "line-join": "round",
+        "line-cap": "round",
+      }}
+    />,
+  ];
+};
 
 const PopupContent = ({segment}) => (
   <div className="popup-content-wrapper">
@@ -78,7 +181,7 @@ const PopupContent = ({segment}) => (
       <div className="clear"></div>
       <div className="general-info">
         <div className="stat">
-          <strong>{segment.distance < 1000 ? segment.distance+' m' : segment.distance/1000 + ' km'}</strong>
+          <strong>{formatDistance(segment.distance)}</strong>
           <br />
           <span className="label">Distance</span>
         </div>
@@ -103,16 +206,18 @@ const PopupContent = ({segment}) => (
             <img src={segment.athlete_profile} />
           </div>
           <div className="record-stat">
-            <strong>Your Best: </strong>
-            <a href="/segment_efforts/23726642266" target="_blank">
+            <strong><a href="/athletes/8392597" title={segment.athlete_name} target="_blank">CR</a>: </strong>
+            <a href={`https://strava.com/segment_efforts/${segment.effort_id}`} target="_blank">
               {secondsToHms(segment.elapsed_time)}
             </a>
             <span> ({convertSpeedToPace(segment.speed)}/km)</span>
           </div>
           <div className="record-stat">
-            <strong>+/-CR </strong>
-            <span className="">0s </span>
-            (<a href="/athletes/8392597" target="_blank">{segment.athlete_name}</a>)
+            <strong>PB: </strong>
+            <a href="/athletes/8392597" target="_blank">
+              <span className="">0:00 </span>
+            </a>
+            (<span className=".segment-PB-negative">+0s</span>)
           </div>
         </div>
         <div className="clear"></div>
@@ -121,14 +226,17 @@ const PopupContent = ({segment}) => (
         <a className="alt button create-goal" href="/segments/11786633">
           Set Goal
         </a>
-        <a className="alt button" target="_blank" href="/segments/11786633">
-          View Details
+        <a className="alt button" target="_blank" href={`https://strava.com/segments/${segment.segment_id}`}>
+          View Segment
         </a>
         <div className="clear"></div>
       </div>
     </div>
   </div>
 );
+function formatDistance(d) {
+  return d < 1000 ? d.toFixed(2) + ' m' : (d/1000).toFixed(2) + ' km';
+}
 function secondsToHms(d) {
   d = Number(d);
   var h = Math.floor(d / 3600);
@@ -140,51 +248,9 @@ function secondsToHms(d) {
 function convertSpeedToPace(speed) {
   const total_seconds = 1000 / speed;
   const pace_seconds =
-    (total_seconds % 60).toFixed(1) < 10 ? '0'+(total_seconds % 60).toFixed(0) : (total_seconds % 60).toFixed(0);
+    (total_seconds % 60).toFixed(1) < 9.5 ? '0'+(total_seconds % 60).toFixed(0) : (total_seconds % 60).toFixed(0);
   return `${Math.floor(total_seconds/60)}:${pace_seconds}`;
 }
-
-class SegmentLine extends Component {
-  onToggleHover(e, pointer) {
-    console.log(e);
-    e.target.getCanvas().style.cursor = pointer;
-  };
-  render() {
-    const { id, segment } = this.props;
-    const latlong = polyline.decode(segment.points).map(latlong => [latlong[1], latlong[0]]);
-    const geojson = {
-      "type": "Feature",
-      "properties": {},
-      "geometry": {
-        "type": "LineString",
-        "coordinates": latlong,
-      }
-    };
-    return [
-      <GeoJSONLayer
-        key={id}
-        data={geojson}
-        linePaint={{
-          "line-color": hslToHex(segment.speed*15, 100, 50),//"#ff7200",
-          "line-width": 2,
-          "line-opacity": 0.5,
-        }}
-        lineLayout={{
-          "line-join": "round",
-          "line-cap": "round",
-        }}
-        lineOnMouseEnter={(e) => this.onToggleHover(e, 'pointer')}
-        lineOnMouseLeave={(e) => this.onToggleHover(e, '')}
-        lineOnClick={() => this.props.onClickLine(latlong[0], segment)}
-      />,
-      //   <Layer type="symbol" id={segment.id} layout={{ "icon-image": "marker-15" }}>
-      //     <Feature coordinates={latlong[0]}/>
-      //   </Layer>
-    ];
-  }
-};
-
-export default Mapbox;
 
 // componentDidUpdate() {
 //   if(this.props.segments.length) {
