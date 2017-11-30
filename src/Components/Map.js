@@ -38,11 +38,12 @@ class Mapbox extends Component {
   };
 
   // TODO: Display segment distance as well as effort distance (currently displaying effort distance)
-  // TODO: Make popup buttons change table below the map?
+  // TODO: Make popup goal button change table below the map?
   // TODO: send current athlete effort data to popup for comparison with CR (generate percentile)
   // TODO: add segment filters/search to map (below x elevation/pace/distance etc)
 
   // TODO: Lazy draw segments to improve perf
+  // TODO: Cluster markers when zoomed out
   // or
   // TODO: turn segment GeoJSON lines into a tileset for better render performance
   //   - draw just the one highlighted GeoJSON polyline for the given marker when segment marker is selected/hovered
@@ -62,7 +63,7 @@ class Mapbox extends Component {
           </Popup>
         }
         {this.props.segments.slice(0, 100).map(segment =>
-          <SegmentLine key={`${segment.activity_id}-${segment.id}`}
+          <SegmentLine key={`line-${segment.activity_id}-${segment.id}`}
                        id={`${segment.activity_id}-${segment.id}`}
                        segment={segment}
                        onClickLine={this.onClickLine}
@@ -79,20 +80,22 @@ class SegmentLine extends Component {
     lineOpacity: 0.5,
     lineWidth: 2,
     endPoint: undefined,
+    startMarkerClass: 'startMarker',
   };
   onMarkerClick(coord, segment) {
     this.props.onClickLine(coord, segment);
   }
   onMarkerHover(endPoint) {
-    this.setState({ lineOpacity: 1, lineWidth: 3, endPoint });
+    this.setState({ lineOpacity: 1, lineWidth: 3, endPoint, startMarkerClass: 'startMarkerHover' });
   }
-  onMarkerLeave(endPoint) {
-    this.setState({ lineOpacity: 0.5, lineWidth: 2, endPoint: undefined });
+  onMarkerLeave() {
+    this.setState({ lineOpacity: 0.5, lineWidth: 2, endPoint: undefined, startMarkerClass: 'startMarker' });
   }
   onToggleHover(e, pointer) {
     e.target.getCanvas().style.cursor = pointer;
   };
   getInitials(name) {
+    if(!name) return "--";
     return name.split(" ").map(part => part.charAt(0).toUpperCase()).join('').slice(0, 2);
   }
   render() {
@@ -107,18 +110,9 @@ class SegmentLine extends Component {
       }
     };
     const markerStyle = {
-        width: 32,
-        height: 32,
-        borderRadius: '50%',
-        backgroundColor: '#ff5107',//'#fc4c02',
-        backgroundImage: `url("${segment.athlete_profile}")`,
-        backgroundSize: 'cover',
-        border: '2px solid black',
-        cursor: 'pointer',
-        marginTop: -5,
+      backgroundImage: `url("${segment.athlete_profile}")`,
     };
 
-    // TODO: Add finish circle symbol on segment marker hover
     return <div>
       <GeoJSONLayer
         key={id}
@@ -136,13 +130,13 @@ class SegmentLine extends Component {
         // lineOnMouseLeave={(e) => this.onToggleHover(e, '')}
         // lineOnClick={() => this.props.onClickLine(latlong[0], segment)}
       />
-      <Marker key={`${segment.activity_id}-${segment.id}`}
+      <Marker key={`marker-${segment.activity_id}-${segment.id}`}
               style={markerStyle}
-              className="startMarker"
+              className={this.state.startMarkerClass}
               coordinates={latlong[0]}
               onClick={() => this.onMarkerClick(latlong[0], segment)}
               onMouseEnter={() => this.onMarkerHover(latlong[latlong.length-1])}
-              onMouseLeave={() => this.onMarkerLeave(latlong[latlong.length-1])}
+              onMouseLeave={() => this.onMarkerLeave()}
       >
         <div className="athlete-initials"><span>{this.getInitials(segment.athlete_name)}</span></div>
       </Marker>
@@ -169,29 +163,12 @@ class SegmentLine extends Component {
 //   </Marker>
 // );
 
-const HightlightedSegmentLine = ({id, geojson, speed}) => {
-  return [
-    <GeoJSONLayer
-      key={id}
-      data={geojson}
-      linePaint={{
-        "line-color": hslToHex(speed*15, 100, 50),
-        "line-width": 2,
-        "line-opacity": 0.5,
-      }}
-      lineLayout={{
-        "line-join": "round",
-        "line-cap": "round",
-      }}
-    />,
-  ];
-};
-
 const PopupContent = ({segment}) => (
   <div className="popup-content-wrapper">
     <div className="segment-info-popup segment-info-box">
       <div className="info-box-header">
         <h1>{segment.name}</h1>
+        <h3>CR: <a href="/athletes/8392597" target="_blank">{segment.athlete_name}</a></h3>
       </div>
       <div className="clear"></div>
       <div className="general-info">
@@ -221,7 +198,7 @@ const PopupContent = ({segment}) => (
             <img src={segment.athlete_profile} />
           </div>
           <div className="record-stat">
-            <strong><a href="/athletes/8392597" title={segment.athlete_name} target="_blank">CR</a>: </strong>
+            <strong>CR: </strong>
             <a href={`https://strava.com/segment_efforts/${segment.effort_id}`} target="_blank">
               {secondsToHms(segment.elapsed_time)}
             </a>

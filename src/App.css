@@ -232,18 +232,12 @@ ul.zones {
     }
 }
 
-.marker {
-  color: lawngreen;
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  cursor: pointer;
-}
+
 .athlete-initials {
-  width: 32px;
-  height: 32px;
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
-  background-color: rgba(0, 0, 0, 0.2);
+  background-color: rgba(0, 0, 0, 0.15);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -253,12 +247,44 @@ ul.zones {
 }
 .athlete-initials span {
   color: white;
-  font-weight: 600;
-  font-size: 16px;
+  font-weight: 400;
+  font-size: 14px;
   position: relative;
-  top: 1px;
+  top: 0px;
+}
+.startMarker {
+  opacity: 0.8;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background-color: #ff5107;/*#fc4c02*/
+  background-size: cover;
+  border: 2px solid black;
+  cursor: pointer;
+  margin-top: -5px;
 }
 .startMarker:before {
+  content: ' ';
+  position: absolute;
+  width: 0;
+  height: 0;
+  left: 7px;
+  top: 19px;
+  border: 5px solid;
+  border-color: black transparent transparent black;
+  transform: rotate(-135deg);
+}
+.startMarkerHover {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: #ff5107;/*#fc4c02*/
+  background-size: cover;
+  border: 2px solid black;
+  cursor: pointer;
+  margin-top: -5px;
+}
+.startMarkerHover:before {
   content: ' ';
   position: absolute;
   width: 0;
@@ -269,6 +295,15 @@ ul.zones {
   border-color: black transparent transparent black;
   transform: rotate(-135deg);
 }
+.startMarkerHover .athlete-initials {
+  width: 32px;
+  height: 32px;
+}
+.startMarkerHover .athlete-initials span {
+  font-size: 16px;
+  top: 2px;
+}
+
 .endMarker {
   width: 16px;
   height: 16px;
@@ -282,7 +317,7 @@ ul.zones {
   background-size: 6.5px 6.5px;
   background-position: 0 0, 0 6.5px, 6.5px -6.5px, -6.5px 0px;
   border: 1px solid black;
-  margin-top: 8px;
+  margin-top: 9px;
 }
 
 .mapboxgl-popup {
@@ -319,9 +354,9 @@ ul.zones {
   /*background: #fff;*/
   /*padding: 1px;*/
 }
-.info-box-header h1 {
+.info-box-header h1, .info-box-header h3 {
   color: #000;
-  font-size: 1.35em;
+  font-size: 22px;
   margin-bottom: 0;
   max-width: 90%;
   overflow: hidden;
@@ -329,6 +364,15 @@ ul.zones {
   text-overflow: ellipsis;
   white-space: nowrap;
   padding-left: 5%;
+}
+.info-box-header h3 {
+  font-size: 15px;
+  font-weight: 400;
+  margin: 0;
+}
+.info-box-header h3 a {
+  color: #3887BE;
+  text-decoration: none;
 }
 .clear {
   clear: both;
