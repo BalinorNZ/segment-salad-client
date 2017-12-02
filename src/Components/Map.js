@@ -42,13 +42,24 @@ class Mapbox extends Component {
   // TODO: send current athlete effort data to popup for comparison with CR (generate percentile)
   // TODO: add segment filters/search to map (below x elevation/pace/distance etc)
 
-  // TODO: Lazy draw segments to improve perf
   // TODO: Cluster markers when zoomed out
-  // or
   // TODO: turn segment GeoJSON lines into a tileset for better render performance
-  //   - draw just the one highlighted GeoJSON polyline for the given marker when segment marker is selected/hovered
 
   render() {
+    // Generate geojson feature collection which can be input into geojson-vt to make vector tiles
+    const geojson = {
+      "type": "FeatureCollection",
+      "features": this.props.segments.map(segment => (
+        {
+          "type": "Feature",
+          "properties": { "name": segment.name },
+          "geometry": {"type": "LineString", "coordinates": polyline.decode(segment.points).map(latlong => [latlong[1], latlong[0]])}
+        }
+      )),
+    };
+    //console.log(JSON.stringify(geojson));
+
+
     return <Map {...this.mapProps}>
         <ZoomControl />
         <ScaleControl />
@@ -58,11 +69,14 @@ class Mapbox extends Component {
                  anchor={'bottom'}
                  offset={0}
                  closeButton={true}
-                 closeOnClick={true}>
-            <PopupContent segment={this.state.popup.segment} />
+                 closeOnClick={true}
+          >
+            <PopupContent segment={this.state.popup.segment}
+                          updateSegmentLeaderboard={this.props.updateSegmentLeaderboard}
+            />
           </Popup>
         }
-        {this.props.segments.slice(0, 100).map(segment =>
+        {this.props.segments.slice(0, 150).map(segment =>
           <SegmentLine key={`line-${segment.activity_id}-${segment.id}`}
                        id={`${segment.activity_id}-${segment.id}`}
                        segment={segment}
@@ -163,12 +177,12 @@ class SegmentLine extends Component {
 //   </Marker>
 // );
 
-const PopupContent = ({segment}) => (
+const PopupContent = ({segment, updateSegmentLeaderboard}) => (
   <div className="popup-content-wrapper">
     <div className="segment-info-popup segment-info-box">
       <div className="info-box-header">
         <h1>{segment.name}</h1>
-        <h3>CR: <a href="/athletes/8392597" target="_blank">{segment.athlete_name}</a></h3>
+        <h3>CR: <a href={`https://strava.com/athletes/${segment.athlete_id}`} target="_blank">{segment.athlete_name}</a></h3>
       </div>
       <div className="clear"></div>
       <div className="general-info">
@@ -215,8 +229,10 @@ const PopupContent = ({segment}) => (
         <div className="clear"></div>
       </div>
       <div className="details-link explorer-performance-goals-beta">
-        <a className="alt button create-goal" href="/segments/11786633">
-          Set Goal
+        <a className="alt button create-goal"
+           onClick={(e) => updateSegmentLeaderboard(e, segment.segment_id)}
+        >
+          Update
         </a>
         <a className="alt button" target="_blank" href={`https://strava.com/segments/${segment.segment_id}`}>
           View Segment

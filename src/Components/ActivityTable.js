@@ -15,6 +15,7 @@ class ActivityTable extends Component {
   getActivities(page) {
     fetch(`/activities/${page}`)
       .then(res => res.json())
+      //.then(json => json.message === 'Rate Limit Exceeded' ? Promise.reject() : json)
       .then(activities => this.setState({ activities, isFetching: false }));
   }
   handleClick(e) {

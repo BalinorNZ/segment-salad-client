@@ -21,10 +21,16 @@ class App extends Component {
       .then(segments => segments.map(s => Object.assign({}, s, { speed: s.distance/s.elapsed_time })))
       .then(segments => this.setState(Object.assign({}, this.state, { segments, isFetchingSegments: false })));
   };
+  updateSegmentLeaderboard(e, id) {
+    e.preventDefault();
+    fetch(`/segments/${id}/updateleaderboard`)
+      .then(res => res.json())
+      .then(efforts => console.log(efforts[0]));
+  }
   render() {
     return (
       <div className="App">
-        <Map segments={this.state.segments} />
+        <Map segments={this.state.segments} updateSegmentLeaderboard={this.updateSegmentLeaderboard} />
         <Router>
           <div>
             <div className="tabs" id="navcontainer">

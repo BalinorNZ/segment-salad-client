@@ -283,6 +283,7 @@ ul.zones {
   border: 2px solid black;
   cursor: pointer;
   margin-top: -5px;
+  z-index: 1000 !important;
 }
 .startMarkerHover:before {
   content: ' ';
@@ -294,6 +295,7 @@ ul.zones {
   border: 7px solid;
   border-color: black transparent transparent black;
   transform: rotate(-135deg);
+  z-index: 1000 !important;
 }
 .startMarkerHover .athlete-initials {
   width: 32px;
@@ -398,6 +400,7 @@ ul.zones {
   line-height: 44px;
   color: white;
   text-decoration: none;
+  cursor: pointer;
 }
 .segment-info-box .details-link .button:first-child {
   margin-right: 3px;
