@@ -37,9 +37,7 @@ class Mapbox extends Component {
     this.setState({ popup: { coordinates, segment }});
   };
 
-  // TODO: Display segment distance as well as effort distance (currently displaying effort distance)
-  // TODO: Make popup goal button change table below the map?
-  // TODO: send current athlete effort data to popup for comparison with CR (generate percentile)
+  // TODO: Add filtering, make it also filter table below the map
   // TODO: add segment filters/search to map (below x elevation/pace/distance etc)
 
   // TODO: Cluster markers when zoomed out
@@ -76,7 +74,7 @@ class Mapbox extends Component {
             />
           </Popup>
         }
-        {this.props.segments.slice(0, 150).map(segment =>
+        {this.props.segments.slice(0, 350).map(segment =>
           <SegmentLine key={`line-${segment.activity_id}-${segment.id}`}
                        id={`${segment.activity_id}-${segment.id}`}
                        segment={segment}
@@ -176,7 +174,7 @@ class SegmentLine extends Component {
 //     <div>{pointCount}</div>
 //   </Marker>
 // );
-
+// TODO: send current athlete effort data to popup for comparison with CR (generate percentile)
 const PopupContent = ({segment, updateSegmentLeaderboard}) => (
   <div className="popup-content-wrapper">
     <div className="segment-info-popup segment-info-box">
@@ -196,10 +194,15 @@ const PopupContent = ({segment, updateSegmentLeaderboard}) => (
           <br />
           <span className="label">Grade</span>
         </div>
-        <div className="spacer stat">
+        <div className="stat">
           <strong>{segment.elev_difference} m</strong>
           <br />
           <span className="label">Elev Gain</span>
+        </div>
+        <div className="spacer stat">
+          <strong>{convertSpeedToPace(segment.speed)}/km</strong>
+          <br />
+          <span className="label">Pace</span>
         </div>
         <div className="stat">
           {segment.entry_count}
@@ -216,7 +219,7 @@ const PopupContent = ({segment, updateSegmentLeaderboard}) => (
             <a href={`https://strava.com/segment_efforts/${segment.effort_id}`} target="_blank">
               {secondsToHms(segment.elapsed_time)}
             </a>
-            <span> ({convertSpeedToPace(segment.speed)}/km)</span>
+            <span> ({(formatDistance(segment.effort_distance))} @ {convertSpeedToPace(segment.effort_speed)}/km)</span>
           </div>
           <div className="record-stat">
             <strong>PB: </strong>
@@ -243,7 +246,7 @@ const PopupContent = ({segment, updateSegmentLeaderboard}) => (
   </div>
 );
 function formatDistance(d) {
-  return d < 1000 ? d.toFixed(2) + ' m' : (d/1000).toFixed(2) + ' km';
+  return d < 1000 ? d.toFixed(1) + 'm' : (d/1000).toFixed(2) + 'km';
 }
 function secondsToHms(d) {
   d = Number(d);

@@ -18,7 +18,8 @@ class App extends Component {
       { a_lat: -45.9100, a_long: 170.4544, b_lat: -45.8423, b_long: 170.5676 };
     fetch(`/segments/explore/${a_lat}/${a_long}/${b_lat}/${b_long}`)
       .then(res => res.json())
-      .then(segments => segments.map(s => Object.assign({}, s, { speed: s.distance/s.elapsed_time })))
+      .then(segments => segments.map(s =>
+        Object.assign({}, s, { speed: s.distance/s.elapsed_time, effort_speed: s.effort_distance/s.elapsed_time })))
       .then(segments => this.setState(Object.assign({}, this.state, { segments, isFetchingSegments: false })));
   };
   updateSegmentLeaderboard(e, id) {
