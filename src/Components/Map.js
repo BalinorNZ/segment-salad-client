@@ -246,6 +246,7 @@ const PopupContent = ({segment, updateSegmentLeaderboard}) => (
   </div>
 );
 function formatDistance(d) {
+  if(!d) return 0;
   return d < 1000 ? d.toFixed(1) + 'm' : (d/1000).toFixed(2) + 'km';
 }
 function secondsToHms(d) {
@@ -257,6 +258,7 @@ function secondsToHms(d) {
     : ('0' + m).slice(-2) + ":" + ('0' + s).slice(-2);
 }
 function convertSpeedToPace(speed) {
+  if(!speed) return '0:00';
   const total_seconds = 1000 / speed;
   const pace_seconds =
     (total_seconds % 60).toFixed(1) < 9.5 ? '0'+(total_seconds % 60).toFixed(0) : (total_seconds % 60).toFixed(0);
