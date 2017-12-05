@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import ReactMapboxGl, { Layer, Feature, Marker, Popup, GeoJSONLayer, ZoomControl, ScaleControl, RotationControl } from "react-mapbox-gl";
 import polyline from 'polyline';
+import * as _ from 'lodash';
 
 const Map = ReactMapboxGl({
   accessToken: 'pk.eyJ1IjoibmljYmF0aGdhdGUiLCJhIjoiY2phOWYxcjQ3MGg2ZzMwcTlhamJ6Z21pMiJ9.kA5eVyN3PH56G-5u56-Q4A',
@@ -57,7 +58,6 @@ class Mapbox extends Component {
     };
     //console.log(JSON.stringify(geojson));
 
-
     return <Map {...this.mapProps}>
         <ZoomControl />
         <ScaleControl />
@@ -70,6 +70,7 @@ class Mapbox extends Component {
                  closeOnClick={true}
           >
             <PopupContent segment={this.state.popup.segment}
+                          currentAthleteEffort={_.find(this.props.athleteSegments, s => s.id === this.state.popup.segment.id)}
                           updateSegmentLeaderboard={this.props.updateSegmentLeaderboard}
             />
           </Popup>
@@ -175,7 +176,7 @@ class SegmentLine extends Component {
 //   </Marker>
 // );
 // TODO: send current athlete effort data to popup for comparison with CR (generate percentile)
-const PopupContent = ({segment, updateSegmentLeaderboard}) => (
+const PopupContent = ({segment, updateSegmentLeaderboard, currentAthleteEffort}) => (
   <div className="popup-content-wrapper">
     <div className="segment-info-popup segment-info-box">
       <div className="info-box-header">
@@ -219,15 +220,18 @@ const PopupContent = ({segment, updateSegmentLeaderboard}) => (
             <a href={`https://strava.com/segment_efforts/${segment.effort_id}`} target="_blank">
               {secondsToHms(segment.elapsed_time)}
             </a>
-            <span> ({(formatDistance(segment.effort_distance))} @ {convertSpeedToPace(segment.effort_speed)}/km)</span>
+            <span> ({formatDistance(segment.effort_distance)} @ {convertSpeedToPace(segment.effort_speed)}/km)</span>
           </div>
+          {currentAthleteEffort ?
           <div className="record-stat">
             <strong>PB: </strong>
-            <a href="/athletes/8392597" target="_blank">
-              <span className="">0:00 </span>
+            <a href={`https://strava.com/segment_efforts/${currentAthleteEffort.effort_id}`} target="_blank">
+              <span className=""> {secondsToHms(currentAthleteEffort.elapsed_time)} </span>
             </a>
-            (<span className=".segment-PB-negative">+0s</span>)
+            <span className=".segment-PB-negative"> ({formatDistance(currentAthleteEffort.effort_distance)}
+              {'\u00A0'}@ {convertSpeedToPace(currentAthleteEffort.effort_speed)}/km)</span>
           </div>
+            : <div className="record-stat"><strong>PB: </strong>Segment not attempted yet.</div>}
         </div>
         <div className="clear"></div>
       </div>

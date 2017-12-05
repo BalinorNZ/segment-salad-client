@@ -14,9 +14,11 @@ class App extends Component {
   };
 
   componentDidMount() {
-    fetch(`/authenticate`)
-      .then(res => res.json())
-      .then(auth => console.log(auth));
+    // fetch(`/authenticate`)
+    //   .then(res => res.json())
+    //   .then(auth => console.log(auth));
+    // TODO: replace with athlete_id from input box
+    const athlete_id = 4734138;
     //-45.911756,170.495793,-45.888165,170.535169
     const { a_lat, a_long, b_lat, b_long } =
       { a_lat: -45.9100, a_long: 170.4544, b_lat: -45.8423, b_long: 170.5676 };
@@ -25,11 +27,11 @@ class App extends Component {
       .then(segments => segments.map(s =>
         Object.assign({}, s, { segment_id: s.id, speed: s.distance/s.elapsed_time, effort_speed: s.effort_distance/s.elapsed_time })))
       .then(segments => this.setState(Object.assign({}, this.state, { segments, isFetchingSegments: false })));
-    // fetch(`/athletes/${athlete_id}/segments`)
-    //   .then(res => res.json())
-    //   .then(segments => segments.map(s =>
-    //     Object.assign({}, s, { segment_id: s.id, speed: s.distance/s.elapsed_time, effort_speed: s.effort_distance/s.elapsed_time })))
-    //   .then(athlete_segments => this.setState(Object.assign({}, this.state, { athlete_segments })));
+    fetch(`/athletes/${athlete_id}/segments`)
+      .then(res => res.json())
+      .then(segments => segments.map(s =>
+        Object.assign({}, s, { segment_id: s.id, speed: s.distance/s.elapsed_time, effort_speed: s.effort_distance/s.elapsed_time })))
+      .then(athlete_segments => this.setState(Object.assign({}, this.state, { athlete_segments })));
   };
   updateSegmentLeaderboard(e, id) {
     e.preventDefault();
@@ -40,7 +42,7 @@ class App extends Component {
   render() {
     return (
       <div className="App">
-        <Map segments={this.state.segments} updateSegmentLeaderboard={this.updateSegmentLeaderboard} />
+        <Map segments={this.state.segments} athleteSegments={this.state.athlete_segments} updateSegmentLeaderboard={this.updateSegmentLeaderboard} />
         <Router>
           <div>
             <div className="tabs" id="navcontainer">
