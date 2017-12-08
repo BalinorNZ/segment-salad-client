@@ -4,6 +4,7 @@ import ReactMapboxGl, { Layer, Feature, Marker, Popup, GeoJSONLayer, ZoomControl
 import polyline from 'polyline';
 import * as _ from 'lodash';
 
+
 const Map = ReactMapboxGl({
   accessToken: 'pk.eyJ1IjoibmljYmF0aGdhdGUiLCJhIjoiY2phOWYxcjQ3MGg2ZzMwcTlhamJ6Z21pMiJ9.kA5eVyN3PH56G-5u56-Q4A',
 });

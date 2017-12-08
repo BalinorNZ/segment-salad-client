@@ -1,6 +1,6 @@
 body {
   font-size: 14px;
-  font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;
+  font-family: Roboto, Arial, sans-serif;
 }
 
 .App {
@@ -471,4 +471,117 @@ h1 {
 }
 strong {
   font-weight: 600;
+}
+
+
+.roundButton {
+  background-color: #96D9FF;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  border: 10px solid #0065A6;
+  outline: none;
+  transition: all .2s cubic-bezier(0, 1.26, .8, 1.28);
+  position: absolute;
+  z-index: 1000;
+  margin: 15px;
+}
+.roundButton:hover {
+   background-color: #96D9FF;
+   cursor: pointer;
+   border-color: #003557;
+   transform: scale(1.2, 1.2);
+ }
+.roundButton:active {
+  border-color: #003557;
+  background-color: #FFF;
+}
+#filter-menu {
+  width: 20vw;
+  box-shadow: 0 0 20px -10px rgba(0, 0, 0, 0.3);
+  position: fixed;
+  top: 0;
+  left: 0;
+  transition: transform .3s
+  cubic-bezier(0, .52, 0, 1);
+  z-index: 1000;
+}
+#filter-menu.hide {
+  transform: translate3d(-20vw, 0, 0);
+}
+#filter-menu.show {
+  transform: translate3d(0vw, 0, 0);
+}
+.filter-menu-contents {
+  overflow: hidden;
+  height: 570px;
+  padding: 15px;
+  background: rgba(255, 255, 255, 0.8);
+}
+.filter-menu-contents .text {
+  margin-right: 10px;
+  min-height: 25px;
+  outline: 0;
+  min-width: 175px;
+}
+.filter-menu-contents h4 {
+  margin-bottom: 5px;
+}
+.btn {
+  background-color: #fc4c02;
+  border-color: #fc4c02;
+  font-size: 12px;
+  min-height: 30px;
+  padding: 8px 15px;
+  color: #fff;
+  text-align: center;
+  border: 0;
+  cursor: pointer;
+}
+
+.filter-menu-contents h3 {
+  margin-bottom: 5px;
+}
+.btn:hover {
+  background-color: #fd6f34;
+}
+select {
+  width: 178px;
+  height: 31px;
+}
+
+.filter-menu-toggle-button-container {
+  position: absolute;
+  top: 10px;
+  left: 100%;
+  z-index:-1;
+}
+.filter-menu-toggle-button {
+  width: 23px;
+  height: 48px;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.5);
+  box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.5);
+  border: 0;
+  overflow: visible;
+  color: black;
+  font-size: 15px;
+  padding-left: 4px;
+  outline: 0;
+  z-index: -1;
+}
+
+.filter-menu-contents ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.leaderboard ul li span.athlete-name {
+  display: inline-block;
+  min-width: 180px;
+}
+.leaderboard ul li span.segment-count {
+  text-align: right;
+  display: inline-block;
+  min-width: 50px
 }
