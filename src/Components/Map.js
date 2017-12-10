@@ -12,6 +12,7 @@ const Map = ReactMapboxGl({
 class Mapbox extends Component {
   state = {
     popup: undefined,
+    bounds: [],
   };
   componentWillMount() {
     const containerStyle = {
@@ -29,22 +30,30 @@ class Mapbox extends Component {
       minZoom: 9,
       maxZoom: 24,
       cursor: 'pointer',
-      onClick: () => this.unsetPopup(),
+      onClick: (e) => this.handleMapClick(e),
     };
   }
-  unsetPopup = () => {
-    this.setState({ popup: undefined });
+  handleMapClick = (e) => {
+    this.setState(Object.assign({}, this.state, { bounds: e.getBounds(), popup: undefined }));
   };
   onClickLine = (coordinates, segment) => {
     this.setState({ popup: { coordinates, segment }});
   };
+  scanSegmentsClick = e => {
+    console.log(this.state.bounds);
+    if(!this.state.bounds) return;
+    const bounds = this.state.bounds;
+    fetch(`/segments/explore/${bounds._sw.lat}/${bounds._sw.lng}/${bounds._ne.lat}/${bounds._ne.lng}`)
+      .then(res => res.json())
+      .then(segments => segments.map(s =>
+        Object.assign({}, s, { segment_id: s.id, speed: s.distance/s.elapsed_time, effort_speed: s.effort_distance/s.elapsed_time })))
+      .then(segments => this.setState(Object.assign({}, this.state, { segments, isFetchingSegments: false })));
+  };
 
   // TODO: Add filtering, make it also filter table below the map
   // TODO: add segment filters/search to map (below x elevation/pace/distance etc)
-
   // TODO: Cluster markers when zoomed out
   // TODO: turn segment GeoJSON lines into a tileset for better render performance
-
   render() {
     // Generate geojson feature collection which can be input into geojson-vt to make vector tiles
     const geojson = {
@@ -60,31 +69,32 @@ class Mapbox extends Component {
     //console.log(JSON.stringify(geojson));
 
     return <Map {...this.mapProps}>
-        <ZoomControl />
-        <ScaleControl />
-        <RotationControl />
-        {this.state.popup &&
-          <Popup coordinates={this.state.popup.coordinates}
-                 anchor={'bottom'}
-                 offset={0}
-                 closeButton={true}
-                 closeOnClick={true}
-          >
-            <PopupContent segment={this.state.popup.segment}
-                          currentAthleteEffort={_.find(this.props.athleteSegments, s => s.id === this.state.popup.segment.id)}
-                          updateSegmentLeaderboard={this.props.updateSegmentLeaderboard}
-            />
-          </Popup>
-        }
-        {this.props.segments.slice(0, 350).map(segment =>
-          <SegmentLine key={`line-${segment.activity_id}-${segment.id}`}
-                       id={`${segment.activity_id}-${segment.id}`}
-                       segment={segment}
-                       onClickLine={this.onClickLine}
-                       unsetPopup={this.unsetPopup}
-          />)
-        }
-      </Map>;
+      <button className="scanButton btn" onClick={e => this.scanSegmentsClick(e)}>Scan for segments</button>
+      <ZoomControl />
+      <ScaleControl />
+      <RotationControl />
+      {this.state.popup &&
+        <Popup coordinates={this.state.popup.coordinates}
+               anchor={'bottom'}
+               offset={0}
+               closeButton={true}
+               closeOnClick={true}
+        >
+          <PopupContent segment={this.state.popup.segment}
+                        currentAthleteEffort={_.find(this.props.athleteSegments, s => s.id === this.state.popup.segment.id)}
+                        updateSegmentLeaderboard={this.props.updateSegmentLeaderboard}
+          />
+        </Popup>
+      }
+      {this.props.segments.slice(0, 350).map(segment =>
+        <SegmentLine key={`line-${segment.activity_id}-${segment.id}`}
+                     id={`${segment.activity_id}-${segment.id}`}
+                     segment={segment}
+                     onClickLine={this.onClickLine}
+                     unsetPopup={this.handleMapClick}
+        />)
+      }
+    </Map>;
   }
 }
 export default Mapbox;

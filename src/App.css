@@ -585,3 +585,10 @@ select {
   display: inline-block;
   min-width: 50px
 }
+
+.scanButton {
+  position: absolute;
+  width: 132px;
+  right: 10px;
+  bottom: 42px;
+}

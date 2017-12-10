@@ -12,6 +12,7 @@ class App extends Component {
     segments: [],
     athlete_segments: [],
     isFetchingSegments: true,
+    clubs: [],
   };
 
   componentDidMount() {
@@ -28,18 +29,34 @@ class App extends Component {
       .then(segments => segments.map(s =>
         Object.assign({}, s, { segment_id: s.id, speed: s.distance/s.elapsed_time, effort_speed: s.effort_distance/s.elapsed_time })))
       .then(segments => this.setState(Object.assign({}, this.state, { segments, isFetchingSegments: false })));
+
     fetch(`/athletes/${athlete_id}/segments`)
       .then(res => res.json())
       .then(segments => segments.map(s =>
         Object.assign({}, s, { segment_id: s.id, speed: s.distance/s.elapsed_time, effort_speed: s.effort_distance/s.elapsed_time })))
       .then(athlete_segments => this.setState(Object.assign({}, this.state, { athlete_segments })));
+
+    fetch(`/list_clubs`)
+      .then(res => res.json())
+      .then(clubs => this.setState(Object.assign({}, this.state, { clubs })));
   };
-  filterSegments = athlete_id => {
+  filterSegmentsByAthlete = athlete_id => {
     if(!athlete_id){
       this.getAllSegments();
       return;
     }
     fetch(`/athletes/${athlete_id}/segments`)
+      .then(res => res.json())
+      .then(segments => segments.map(s =>
+        Object.assign({}, s, { segment_id: s.id, speed: s.distance/s.elapsed_time, effort_speed: s.effort_distance/s.elapsed_time })))
+      .then(segments => this.setState(Object.assign({}, this.state, { segments })));
+  };
+  filterSegmentsByClub = club_id => {
+    if(!club_id){
+      this.getAllSegments();
+      return;
+    }
+    fetch(`/clubs/${club_id}/segments`)
       .then(res => res.json())
       .then(segments => segments.map(s =>
         Object.assign({}, s, { segment_id: s.id, speed: s.distance/s.elapsed_time, effort_speed: s.effort_distance/s.elapsed_time })))
@@ -63,8 +80,16 @@ class App extends Component {
   render() {
     return (
       <div className="App">
-        <FilterMenuContainer filterSegments={this.filterSegments} segments={this.state.segments} />
-        <Map segments={this.state.segments} athleteSegments={this.state.athlete_segments} updateSegmentLeaderboard={this.updateSegmentLeaderboard} />
+        <FilterMenuContainer
+          filterSegmentsByAthlete={this.filterSegmentsByAthlete}
+          filterSegmentsByClub={this.filterSegmentsByClub}
+          segments={this.state.segments}
+          clubs={this.state.clubs}
+        />
+        <Map segments={this.state.segments}
+             athleteSegments={this.state.athlete_segments}
+             updateSegmentLeaderboard={this.updateSegmentLeaderboard}
+        />
         <Router>
           <div>
             <div className="tabs" id="navcontainer">
@@ -91,7 +116,7 @@ export default App;
 class FilterMenuContainer extends Component {
   constructor(props) {
     super(props);
-    this.state = {visible: true};
+    this.state = { visible: true };
     this.handleMouseDown = this.handleMouseDown.bind(this);
     this.toggleMenu = this.toggleMenu.bind(this);
   }
@@ -109,8 +134,10 @@ class FilterMenuContainer extends Component {
         {/*<MenuButton handleMouseDown={this.handleMouseDown} />*/}
         <FilterMenu handleMouseDown={this.handleMouseDown}
                     menuVisibility={this.state.visible}
-                    filterSegments={this.props.filterSegments}
-                    segments={this.props.segments} />
+                    filterSegmentsByAthlete={this.props.filterSegmentsByAthlete}
+                    filterSegmentsByClub={this.props.filterSegmentsByClub}
+                    segments={this.props.segments}
+                    clubs={this.props.clubs} />
       </div>
     );
   }
@@ -119,10 +146,13 @@ class FilterMenuContainer extends Component {
 class FilterMenu extends Component {
   state = {
     athlete_id: '',
+    club_id: '',
   };
   handleChange = e => {
-    this.setState({ athlete_id: e.target.value });
-    console.log(this.state.athlete_id);
+    this.setState(Object.assign({}, this.state, { athlete_id: e.target.value }));
+  };
+  handleSelect = e => {
+    this.setState(Object.assign({}, this.state, { club_id: e.target.value }));
   };
   render() {
     const visibility = this.props.menuVisibility ? "show": "hide";
@@ -141,16 +171,23 @@ class FilterMenu extends Component {
         <div className="filter-menu-contents">
           <h4>Athlete ID</h4>
           <input className="text" type="text" name="athlete_id" onChange={this.handleChange} />
-          <input className="btn" type="submit" value="Filter" onClick={() => this.props.filterSegments(this.state.athlete_id)} />
+          <input className="btn" type="submit" value="Filter"
+                 onClick={() => this.props.filterSegmentsByAthlete(this.state.athlete_id)} />
           <h4>Club</h4>
-          <select className="text"onChange={this.handleChange}><option value='blank'></option></select>
-          <input className="btn" type="submit" value="Filter" onClick={() => this.props.filterSegments(this.state.athlete_id)} />
+          <select className="text"onChange={this.handleSelect}>
+            <option value=''></option>
+            {this.props.clubs.map(club =>
+              <option key={club.id} value={club.id}>{club.name}</option>
+            )}
+          </select>
+          <input className="btn" type="submit" value="Filter"
+                 onClick={() => this.props.filterSegmentsByClub(this.state.club_id)} />
 
           <div className="leaderboard">
             <h3>Leaderboard</h3>
             <ul>
               {sortedGroups.map(athlete =>
-                <li>
+                <li key={athlete.athlete}>
                   <span className="athlete-name">{athlete.athlete}:</span>
                   <span className="segment-count">{athlete.segment_count}</span>
                 </li>
