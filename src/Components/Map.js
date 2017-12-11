@@ -86,7 +86,7 @@ class Mapbox extends Component {
           />
         </Popup>
       }
-      {this.props.segments.slice(0, 350).map(segment =>
+      {this.props.segments.slice(0, 1000).map(segment =>
         <SegmentLine key={`line-${segment.activity_id}-${segment.id}`}
                      id={`${segment.activity_id}-${segment.id}`}
                      segment={segment}
