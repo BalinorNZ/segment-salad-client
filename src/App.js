@@ -5,6 +5,7 @@ import Map from './Components/Map';
 import FilterMenu from './Components/FilterMenu';
 import SegmentTable from './Components/SegmentTable';
 import ActivityTable from './Components/ActivityTable';
+import Button from './Components/Button';
 
 
 class App extends Component {
@@ -76,6 +77,11 @@ class App extends Component {
       .then(res => res.json())
       .then(efforts => console.log(efforts[0]));
   }
+  getSegmentsForActivities() {
+    fetch(`/activities/segments/1`)
+      .then(res => res.json())
+      .then(payload => console.log(payload));
+  }
   render() {
     return (
       <div className="App">
@@ -91,6 +97,8 @@ class App extends Component {
              athleteSegments={this.state.athlete_segments}
              updateSegmentLeaderboard={this.updateSegmentLeaderboard}
         />
+
+        <Button buttonText="Scan activities for new segments" onClick={this.getSegmentsForActivities}/>
 
         <Router>
           <div>
