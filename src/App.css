@@ -504,7 +504,7 @@ strong {
   background-color: #FFF;
 }
 #filter-menu {
-  width: 20vw;
+  width: 280px;
   box-shadow: 0 0 20px -10px rgba(0, 0, 0, 0.3);
   position: absolute;
   top: 0;
@@ -514,7 +514,7 @@ strong {
   z-index: 1000;
 }
 #filter-menu.hide {
-  transform: translate3d(-20vw, 0, 0);
+  transform: translate3d(-280px, 0, 0);
 }
 #filter-menu.show {
   transform: translate3d(0vw, 0, 0);
@@ -526,7 +526,6 @@ strong {
   background: rgba(255, 255, 255, 0.8);
 }
 .filter-menu-contents .text {
-  margin-right: 10px;
   min-height: 25px;
   outline: 0;
   min-width: 175px;
@@ -544,6 +543,7 @@ strong {
   text-align: center;
   border: 0;
   cursor: pointer;
+  margin-left: 10px;
 }
 
 .filter-menu-contents h3 {
