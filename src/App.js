@@ -82,6 +82,11 @@ class App extends Component {
       .then(res => res.json())
       .then(payload => console.log(payload));
   }
+  getAllSegmentsEfforts() {
+    fetch(`/maintenance/updateallleaderboards`)
+      .then(res => res.json())
+      .then(payload => console.log(payload));
+  }
   render() {
     return (
       <div className="App">
@@ -99,6 +104,7 @@ class App extends Component {
         />
 
         <Button buttonText="Scan activities for new segments" onClick={this.getSegmentsForActivities}/>
+        <Button buttonText="Refresh all segment efforts" onClick={this.getAllSegmentsEfforts}/>
 
         <Router>
           <div>
