@@ -33,7 +33,8 @@ class ActivityTable extends Component {
   }
   calculateFitness(speed, hr) {
     //console.log(hr, speed);
-    return (hr/speed).toFixed(0);
+    const adjustedHR = (hr-45)/(190-45)*100;
+    return (adjustedHR/speed).toFixed(0);
   }
   render() {
     if(this.state.isFetching) return(<Spinner />);

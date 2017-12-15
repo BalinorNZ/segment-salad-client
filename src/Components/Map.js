@@ -32,6 +32,7 @@ class Mapbox extends Component {
     this.setState(Object.assign({}, this.state, { bounds: e.getBounds(), popup: undefined }));
   };
   onClickLine = (coordinates, segment) => {
+    console.log("")
     this.setState({ popup: { coordinates, segment }});
   };
   scanSegmentsClick = e => {

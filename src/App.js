@@ -10,6 +10,7 @@ import Button from './Components/Button';
 
 class App extends Component {
   state = {
+    current_athlete_id: 4734138, // TODO: this should be set dynamically after authenticating with Strava
     segments: [],
     athlete_segments: [],
     isFetchingSegments: true,
@@ -17,20 +18,15 @@ class App extends Component {
   };
 
   componentDidMount() {
-    // fetch(`/authenticate`)
-    //   .then(res => res.json())
-    //   .then(auth => console.log(auth));
-    // TODO: replace with athlete ID of authenticated user
-    const athlete_id = 4734138;
-    const { a_lat, a_long, b_lat, b_long } =
-      { a_lat: -45.9100, a_long: 170.4544, b_lat: -45.8423, b_long: 170.5676 };
-    fetch(`/segments/explore/${a_lat}/${a_long}/${b_lat}/${b_long}`)
+    // get list of segments with CR efforts attached
+    fetch(`/segments`)
       .then(res => res.json())
       .then(segments => segments.map(s =>
         Object.assign({}, s, { segment_id: s.id, speed: s.distance/s.elapsed_time, effort_speed: s.effort_distance/s.elapsed_time })))
       .then(segments => this.setState(Object.assign({}, this.state, { segments, isFetchingSegments: false })));
 
-    fetch(`/athletes/${athlete_id}/segments`)
+    // get list of segments with current athlete's PB efforts attached
+    fetch(`/athletes/${this.state.current_athlete_id}/segments`)
       .then(res => res.json())
       .then(segments => segments.map(s =>
         Object.assign({}, s, { segment_id: s.id, speed: s.distance/s.elapsed_time, effort_speed: s.effort_distance/s.elapsed_time })))
@@ -63,12 +59,10 @@ class App extends Component {
       .then(segments => this.setState(Object.assign({}, this.state, { segments })));
   };
   getAllSegments = () => {
-    const { a_lat, a_long, b_lat, b_long } =
-      { a_lat: -45.9100, a_long: 170.4544, b_lat: -45.8423, b_long: 170.5676 };
-    fetch(`/segments/explore/${a_lat}/${a_long}/${b_lat}/${b_long}`)
+    fetch(`/segments`)
       .then(res => res.json())
       .then(segments => segments.map(s =>
-        Object.assign({}, s, { segment_id: s.id, speed: s.distance/s.elapsed_time, effort_speed: s.effort_distance/s.elapsed_time })))
+          Object.assign({}, s, { segment_id: s.id, speed: s.distance/s.elapsed_time, effort_speed: s.effort_distance/s.elapsed_time })))
       .then(segments => this.setState(Object.assign({}, this.state, { segments, isFetchingSegments: false })));
   };
   updateSegmentLeaderboard(e, id) {
