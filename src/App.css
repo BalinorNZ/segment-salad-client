@@ -35,11 +35,18 @@ body {
   min-width: 116px;
 }
 
-.segment-name {
+.leaderboard .segment-name {
   max-width: 240px;
 }
-.athlete-name {
+.leaderboard .athlete-name {
   max-width: 120px;
+}
+.leaderboard .solo-icon, .leaderboard .hide-icon {
+  color: #fc4c02;
+  cursor: pointer;
+}
+.leaderboard .solo-icon:hover, .leaderboard .hide-icon:hover {
+  color: #fd6f34;
 }
 
 table {
@@ -532,6 +539,7 @@ strong {
 }
 .filter-menu-contents h4 {
   margin-bottom: 5px;
+  margin-top: 10px;
 }
 .btn {
   background-color: #fc4c02;
@@ -585,7 +593,7 @@ select {
 }
 .leaderboard ul li span.athlete-name {
   display: inline-block;
-  min-width: 180px;
+  min-width: 165px;
 }
 .leaderboard ul li span.segment-count {
   text-align: right;

@@ -21,9 +21,9 @@ class FilterMenu extends Component {
   render() {
     const visibility = this.state.visible ? "show": "hide";
     const arrow = this.state.visible ? "◁" : "▷";
-    const groups = _.groupBy(this.props.segments, s => s.athlete_name);
+    const groups = _.groupBy(this.props.segments, s => s.athlete_id);
     const sortedGroups = _.sortBy(Object.keys(groups)
-      .map(athlete => ({ athlete, segment_count: groups[athlete].length })), 'segment_count')
+      .map(athlete_id => ({ athlete_id, athlete_name: groups[athlete_id][0].athlete_name, segment_count: groups[athlete_id].length })), 'segment_count')
       .reverse()
       .slice(0, 20);
 
@@ -57,8 +57,14 @@ class FilterMenu extends Component {
             <h3>Leaderboard</h3>
             <ul>
               {sortedGroups.map(athlete =>
-                <li key={athlete.athlete}>
-                  <span className="athlete-name">{athlete.athlete}:</span>
+                <li key={athlete.athlete_id}>
+                  <span className="solo-icon" onClick={() => this.props.hideAthlete(athlete.athlete_id)}>
+                    {this.props.hideAthleteId === athlete.athlete_id ? '◻ ' : '◼ '}
+                  </span>
+                  <span className="hide-icon" onClick={() => this.props.soloAthlete(athlete.athlete_id)}>
+                    {this.props.soloAthleteId === athlete.athlete_id ? '◉ ' : '◎ '}
+                  </span>
+                  <span className="athlete-name">{athlete.athlete_name}</span>
                   <span className="segment-count">{athlete.segment_count}</span>
                 </li>
               )}

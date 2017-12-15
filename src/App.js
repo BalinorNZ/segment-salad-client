@@ -10,9 +10,12 @@ import Button from './Components/Button';
 
 class App extends Component {
   state = {
-    current_athlete_id: 4734138, // TODO: this should be set dynamically after authenticating with Strava
+    current_athlete_id: 4734138, //TODO: this should be set dynamically after authenticating with Strava
+    solo_athlete_id: undefined,
+    hide_athlete_id: undefined,
     segments: [],
     athlete_segments: [],
+    filtered_segments: [],
     isFetchingSegments: true,
     clubs: [],
   };
@@ -35,6 +38,18 @@ class App extends Component {
     fetch(`/list_clubs`)
       .then(res => res.json())
       .then(clubs => this.setState(Object.assign({}, this.state, { clubs })));
+  };
+  soloAthlete = athlete_id => {
+    const solo_athlete_id = athlete_id === this.state.solo_athlete_id ? undefined : athlete_id;
+    const filtered_segments = this.state.segments.filter(s => s.athlete_id === athlete_id);
+    console.log("solo", solo_athlete_id);
+    this.setState(Object.assign({}, this.state, { filtered_segments, solo_athlete_id }));
+  };
+  hideAthlete = athlete_id => {
+    const hide_athlete_id = athlete_id === this.state.hide_athlete_id ? undefined : athlete_id;
+    const filtered_segments = this.state.segments.filter(s => s.athlete_id !== athlete_id);
+    console.log("hide", this.state.segments.length, filtered_segments.length);
+    this.setState(Object.assign({}, this.state, { filtered_segments, hide_athlete_id }));
   };
   filterSegmentsByAthlete = athlete_id => {
     if(!athlete_id){
@@ -82,6 +97,8 @@ class App extends Component {
       .then(payload => console.log(payload));
   }
   render() {
+    const segments_to_render = this.state.solo_athlete_id || this.state.hide_athlete_id ?
+      this.state.filtered_segments : this.state.segments;
     return (
       <div className="App">
 
@@ -90,9 +107,13 @@ class App extends Component {
           filterSegmentsByClub={this.filterSegmentsByClub}
           segments={this.state.segments}
           clubs={this.state.clubs}
+          soloAthlete={this.soloAthlete}
+          hideAthlete={this.hideAthlete}
+          soloAthleteId={this.state.solo_athlete_id}
+          hideAthleteId={this.state.hide_athlete_id}
         />
 
-        <Map segments={this.state.segments}
+        <Map segments={segments_to_render}
              athleteSegments={this.state.athlete_segments}
              updateSegmentLeaderboard={this.updateSegmentLeaderboard}
         />
