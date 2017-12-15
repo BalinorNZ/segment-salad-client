@@ -58,10 +58,16 @@ class FilterMenu extends Component {
             <ul>
               {sortedGroups.map(athlete =>
                 <li key={athlete.athlete_id}>
-                  <span className="solo-icon" onClick={() => this.props.hideAthlete(athlete.athlete_id)}>
+                  <span className="solo-icon"
+                        title={`Hide all segments held by ${athlete.athlete_name}`}
+                        onClick={() => this.props.hideAthlete(athlete.athlete_id)}
+                  >
                     {this.props.hideAthleteId === athlete.athlete_id ? '◻ ' : '◼ '}
                   </span>
-                  <span className="hide-icon" onClick={() => this.props.soloAthlete(athlete.athlete_id)}>
+                  <span className="hide-icon"
+                        title={`Show only segments held by ${athlete.athlete_name}`}
+                        onClick={() => this.props.soloAthlete(athlete.athlete_id)}
+                  >
                     {this.props.soloAthleteId === athlete.athlete_id ? '◉ ' : '◎ '}
                   </span>
                   <span className="athlete-name">{athlete.athlete_name}</span>
