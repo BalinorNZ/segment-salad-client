@@ -42,13 +42,11 @@ class App extends Component {
   soloAthlete = athlete_id => {
     const solo_athlete_id = athlete_id === this.state.solo_athlete_id ? undefined : athlete_id;
     const filtered_segments = this.state.segments.filter(s => s.athlete_id === athlete_id);
-    console.log("solo", solo_athlete_id);
     this.setState(Object.assign({}, this.state, { filtered_segments, solo_athlete_id }));
   };
   hideAthlete = athlete_id => {
     const hide_athlete_id = athlete_id === this.state.hide_athlete_id ? undefined : athlete_id;
     const filtered_segments = this.state.segments.filter(s => s.athlete_id !== athlete_id);
-    console.log("hide", this.state.segments.length, filtered_segments.length);
     this.setState(Object.assign({}, this.state, { filtered_segments, hide_athlete_id }));
   };
   filterSegmentsByAthlete = athlete_id => {
@@ -86,13 +84,18 @@ class App extends Component {
       .then(res => res.json())
       .then(efforts => console.log(efforts[0]));
   }
-  getSegmentsForActivities() {
-    fetch(`/activities/segments/1`)
+  getSegmentsForActivities(athlete_id) {
+    fetch(`/segments/scanactivities/${athlete_id}`)
       .then(res => res.json())
       .then(payload => console.log(payload));
   }
   getAllSegmentsEfforts() {
-    fetch(`/maintenance/updateallleaderboards`)
+    fetch(`/maintenance/updateallleaderboards/all`)
+      .then(res => res.json())
+      .then(payload => console.log(payload));
+  }
+  getEffortlessSegmentsEfforts() {
+    fetch(`/maintenance/updateallleaderboards/effortless`)
       .then(res => res.json())
       .then(payload => console.log(payload));
   }
@@ -118,8 +121,10 @@ class App extends Component {
              updateSegmentLeaderboard={this.updateSegmentLeaderboard}
         />
 
-        <Button buttonText="Scan activities for new segments" onClick={this.getSegmentsForActivities}/>
+        <Button buttonText="Scan activities for new segments"
+                onClick={() => this.getSegmentsForActivities(this.state.current_athlete_id)}/>
         <Button buttonText="Refresh all segment efforts" onClick={this.getAllSegmentsEfforts}/>
+        <Button buttonText="Refresh effortless segment efforts" onClick={this.getEffortlessSegmentsEfforts}/>
 
         <Router>
           <div>
@@ -129,7 +134,7 @@ class App extends Component {
                 <li><Link to="/segments">Segments</Link></li>
               </ul>
             </div>
-            <Route exact path="/" component={ActivityTable} />
+            <Route exact path="/" render={() => <ActivityTable athlete={this.state.current_athlete_id}/>} />
             <Route exact
                    path="/segments"
                    render={() =>

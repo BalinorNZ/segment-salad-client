@@ -5,7 +5,7 @@ class Pagination extends Component {
   state = { athlete: {} };
 
   componentDidMount() {
-    this.getAthlete(4734138);
+    this.getAthlete(this.props.athlete);
   }
   getAthlete(id) {
     fetch(`/athletes/${id}/stats`)

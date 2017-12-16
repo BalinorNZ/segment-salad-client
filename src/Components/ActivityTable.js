@@ -42,7 +42,7 @@ class ActivityTable extends Component {
     return (
       <div className="athlete-view">
         <Zones />
-        <Pagination getActivities={this.handleClick.bind(this)} />
+        <Pagination athlete={this.props.athlete} getActivities={this.handleClick.bind(this)} />
         <table>
           <thead>
           <tr><th>Date</th><th>Activity</th><th>Elevation</th><th>Distance</th><th>Time</th><th>Pace</th><th>HR</th><th>Fitness</th></tr>
