@@ -18,6 +18,7 @@ class App extends Component {
     filtered_segments: [],
     isFetchingSegments: true,
     clubs: [],
+    athletes: [],
   };
 
   componentDidMount() {
@@ -38,6 +39,10 @@ class App extends Component {
     fetch(`/list_clubs`)
       .then(res => res.json())
       .then(clubs => this.setState(Object.assign({}, this.state, { clubs })));
+
+    fetch(`/athletes`)
+      .then(res => res.json())
+      .then(athletes => this.setState(Object.assign({}, this.state, { athletes })));
   };
   soloAthlete = athlete_id => {
     const solo_athlete_id = athlete_id === this.state.solo_athlete_id ? undefined : athlete_id;
@@ -54,6 +59,7 @@ class App extends Component {
       this.getAllSegments();
       return;
     }
+    console.log("filter by athlete", athlete_id);
     fetch(`/athletes/${athlete_id}/segments`)
       .then(res => res.json())
       .then(segments => segments.map(s =>
@@ -110,6 +116,7 @@ class App extends Component {
           filterSegmentsByClub={this.filterSegmentsByClub}
           segments={this.state.segments}
           clubs={this.state.clubs}
+          athletes={this.state.athletes}
           soloAthlete={this.soloAthlete}
           hideAthlete={this.hideAthlete}
           soloAthleteId={this.state.solo_athlete_id}

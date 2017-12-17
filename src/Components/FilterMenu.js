@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import Button from './Button';
+import Autosuggest from 'react-autosuggest';
 import * as _ from 'lodash';
 
 
@@ -13,7 +14,7 @@ class FilterMenu extends Component {
     this.setState({ visible: !this.state.visible });
   };
   setAthleteId = e => {
-    this.setState(Object.assign({}, this.state, { athlete_id: e.target.value }));
+    this.setState(Object.assign({}, this.state, { athlete_id: e.target.dataset.athlete }));
   };
   selectClub = e => {
     this.setState(Object.assign({}, this.state, { club_id: e.target.value }));
@@ -34,15 +35,22 @@ class FilterMenu extends Component {
         </div>
         <div className="filter-menu-contents">
 
-          <h4>Athlete ID</h4>
-          <input className="text" type="text" name="athlete_id" onChange={this.setAthleteId} />
+          {/*<h4>Athlete ID</h4>*/}
+          {/*<input className="text" type="text" name="athlete_id" onChange={this.setAthleteId} />*/}
+          {/*<Button buttonText='Filter'*/}
+                  {/*onClick={this.props.filterSegmentsByAthlete}*/}
+                  {/*onClickParams={this.state.athlete_id}*/}
+          {/*/>*/}
+
+          <h4>Athlete</h4>
+          <AutoComplete athletes={this.props.athletes} onChange={this.setAthleteId} />
           <Button buttonText='Filter'
                   onClick={this.props.filterSegmentsByAthlete}
                   onClickParams={this.state.athlete_id}
           />
 
           <h4>Club</h4>
-          <select className="text"onChange={this.selectClub}>
+          <select className="text" onChange={this.selectClub}>
             <option value=''>Select a club...</option>
             {this.props.clubs.map(club =>
               <option key={club.id} value={club.id}>{club.name}</option>
@@ -84,3 +92,69 @@ class FilterMenu extends Component {
 }
 
 export default FilterMenu;
+
+
+class AutoComplete extends React.Component {
+  constructor() {
+    super();
+    this.state = {
+      value: '',
+      suggestions: []
+    };
+  }
+  escapeRegexCharacters = str => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+  getSuggestions = value => {
+    const escapedValue = this.escapeRegexCharacters(value.trim());
+    if (escapedValue === '') return [];
+    const regex = new RegExp('^' + escapedValue, 'i');
+    console.log(this.props.athletes.filter(athlete => regex.test(athlete.athlete_name)).slice(0, 10).map(
+      a => a.athlete_profile
+    ));
+    // limit suggestions to 10
+    return this.props.athletes.filter(athlete => regex.test(athlete.athlete_name)).slice(0, 10);
+  };
+  onChange = (event, { newValue, method }) => {
+    this.setState({ value: newValue });
+  };
+  getSuggestionValue = suggestion => suggestion.athlete_name;
+  renderSuggestion = athlete => {
+    const profile_image = athlete.athlete_profile === 'avatar/athlete/large.png' ?
+      'https://d3nn82uaxijpm6.cloudfront.net/assets/avatar/athlete/medium-989c4eb40a5532739884599ed662327c.png' :
+      athlete.athlete_profile;
+    return (<span className='athlete-suggestion'
+          style={{'backgroundImage': `url("${profile_image}")`}}
+    >
+      <span className='name' data-athlete={athlete.athlete_id}>{athlete.athlete_name}</span>
+    </span>
+  )};
+
+  onSuggestionsFetchRequested = ({ value }) => {
+    this.setState({ suggestions: this.getSuggestions(value) });
+  };
+
+  onSuggestionsClearRequested = () => {
+    this.setState({ suggestions: [] });
+  };
+
+  render() {
+    const { value, suggestions } = this.state;
+    const inputProps = {
+      placeholder: "Type athlete name",
+      value,
+      onChange: this.onChange
+    };
+
+    return (
+      <Autosuggest
+        suggestions={suggestions}
+        onSuggestionsFetchRequested={this.onSuggestionsFetchRequested}
+        onSuggestionsClearRequested={this.onSuggestionsClearRequested}
+        getSuggestionValue={this.getSuggestionValue}
+        renderSuggestion={this.renderSuggestion}
+        onSuggestionSelected={(e) => this.props.onChange(e)}
+        inputProps={inputProps}
+      />
+    );
+  }
+}
