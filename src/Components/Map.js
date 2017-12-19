@@ -5,6 +5,8 @@ import polyline from 'polyline';
 import SegmentPolyline from './SegmentPolyline';
 import SegmentPopup from "./SegmentPopup";
 import * as _ from 'lodash';
+import { connect } from 'react-redux';
+import { getAthleteSegments } from '../Reducers/reducers'
 
 
 const Map = ReactMapboxGl({
@@ -82,4 +84,6 @@ class Mapbox extends Component {
     </Map>;
   }
 }
-export default Mapbox;
+
+const mapStateToProps = (state, props) => ({ athleteSegments: getAthleteSegments(state) });
+export default connect(mapStateToProps)(Mapbox);

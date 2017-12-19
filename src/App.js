@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
 import { BrowserRouter as Router, Link, Route } from 'react-router-dom';
+import { connect } from 'react-redux';
+import { receiveSegments, receiveAthleteSegments } from './Actions/actions';
 import './App.css';
 import Map from './Components/Map';
 import FilterMenu from './Components/FilterMenu';
@@ -27,14 +29,20 @@ class App extends Component {
       .then(res => res.json())
       .then(segments => segments.map(s =>
         Object.assign({}, s, { segment_id: s.id, speed: s.distance/s.elapsed_time, effort_speed: s.effort_distance/s.elapsed_time })))
-      .then(segments => this.setState(Object.assign({}, this.state, { segments, isFetchingSegments: false })));
+      .then(segments => {
+        this.props.receiveSegments(segments);
+        return this.setState(Object.assign({}, this.state, { segments, isFetchingSegments: false }));
+      });
 
     // get list of segments with current athlete's PB efforts attached
     fetch(`/athletes/${this.state.current_athlete_id}/segments`)
       .then(res => res.json())
       .then(segments => segments.map(s =>
         Object.assign({}, s, { segment_id: s.id, speed: s.distance/s.elapsed_time, effort_speed: s.effort_distance/s.elapsed_time })))
-      .then(athlete_segments => this.setState(Object.assign({}, this.state, { athlete_segments })));
+      .then(athlete_segments => {
+        this.props.receiveAthleteSegments(athlete_segments);
+        return this.setState(Object.assign({}, this.state, { athlete_segments }));
+      });
 
     fetch(`/list_clubs`)
       .then(res => res.json())
@@ -124,7 +132,6 @@ class App extends Component {
         />
 
         <Map segments={segments_to_render}
-             athleteSegments={this.state.athlete_segments}
              updateSegmentLeaderboard={this.updateSegmentLeaderboard}
         />
 
@@ -155,4 +162,10 @@ class App extends Component {
   }
 }
 
-export default App;
+const mapStateToProps = (state, props) => ({ segments: state.segments });
+const mapDispatchToProps = (dispatch, ownProps) =>
+  ({
+    receiveSegments: segments => { dispatch(receiveSegments(segments)) },
+    receiveAthleteSegments: segments => { dispatch(receiveAthleteSegments(segments)) },
+  });
+export default connect(mapStateToProps, mapDispatchToProps)(App);
