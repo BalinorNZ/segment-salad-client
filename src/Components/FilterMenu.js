@@ -108,9 +108,6 @@ class AutoComplete extends React.Component {
     const escapedValue = this.escapeRegexCharacters(value.trim());
     if (escapedValue === '') return [];
     const regex = new RegExp('^' + escapedValue, 'i');
-    console.log(this.props.athletes.filter(athlete => regex.test(athlete.athlete_name)).slice(0, 10).map(
-      a => a.athlete_profile
-    ));
     // limit suggestions to 10
     return this.props.athletes.filter(athlete => regex.test(athlete.athlete_name)).slice(0, 10);
   };
