@@ -8,6 +8,7 @@ import FilterMenu from './Components/FilterMenu';
 import SegmentTable from './Components/SegmentTable';
 import ActivityTable from './Components/ActivityTable';
 import Button from './Components/Button';
+import { getSegments } from './Reducers/reducers'
 
 
 class App extends Component {
@@ -15,8 +16,6 @@ class App extends Component {
     current_athlete_id: 4734138, //TODO: this should be set dynamically after authenticating with Strava
     solo_athlete_id: undefined,
     hide_athlete_id: undefined,
-    segments: [],
-    athlete_segments: [],
     filtered_segments: [],
     isFetchingSegments: true,
     clubs: [],
@@ -31,7 +30,7 @@ class App extends Component {
         Object.assign({}, s, { segment_id: s.id, speed: s.distance/s.elapsed_time, effort_speed: s.effort_distance/s.elapsed_time })))
       .then(segments => {
         this.props.receiveSegments(segments);
-        return this.setState(Object.assign({}, this.state, { segments, isFetchingSegments: false }));
+        return this.setState(Object.assign({}, this.state, { isFetchingSegments: false }));
       });
 
     // get list of segments with current athlete's PB efforts attached
@@ -39,10 +38,7 @@ class App extends Component {
       .then(res => res.json())
       .then(segments => segments.map(s =>
         Object.assign({}, s, { segment_id: s.id, speed: s.distance/s.elapsed_time, effort_speed: s.effort_distance/s.elapsed_time })))
-      .then(athlete_segments => {
-        this.props.receiveAthleteSegments(athlete_segments);
-        return this.setState(Object.assign({}, this.state, { athlete_segments }));
-      });
+      .then(athlete_segments => this.props.receiveAthleteSegments(athlete_segments));
 
     fetch(`/list_clubs`)
       .then(res => res.json())
@@ -54,12 +50,12 @@ class App extends Component {
   };
   soloAthlete = athlete_id => {
     const solo_athlete_id = athlete_id === this.state.solo_athlete_id ? undefined : athlete_id;
-    const filtered_segments = this.state.segments.filter(s => s.athlete_id === athlete_id);
+    const filtered_segments = this.props.segments.filter(s => s.athlete_id === athlete_id);
     this.setState(Object.assign({}, this.state, { filtered_segments, solo_athlete_id }));
   };
   hideAthlete = athlete_id => {
     const hide_athlete_id = athlete_id === this.state.hide_athlete_id ? undefined : athlete_id;
-    const filtered_segments = this.state.segments.filter(s => s.athlete_id !== athlete_id);
+    const filtered_segments = this.props.segments.filter(s => s.athlete_id !== athlete_id);
     this.setState(Object.assign({}, this.state, { filtered_segments, hide_athlete_id }));
   };
   filterSegmentsByAthlete = athlete_id => {
@@ -72,7 +68,7 @@ class App extends Component {
       .then(res => res.json())
       .then(segments => segments.map(s =>
         Object.assign({}, s, { segment_id: s.id, speed: s.distance/s.elapsed_time, effort_speed: s.effort_distance/s.elapsed_time })))
-      .then(segments => this.setState(Object.assign({}, this.state, { segments })));
+      .then(segments => this.props.receiveSegments(segments));
   };
   filterSegmentsByClub = club_id => {
     if(!club_id){
@@ -83,14 +79,17 @@ class App extends Component {
       .then(res => res.json())
       .then(segments => segments.map(s =>
         Object.assign({}, s, { segment_id: s.id, speed: s.distance/s.elapsed_time, effort_speed: s.effort_distance/s.elapsed_time })))
-      .then(segments => this.setState(Object.assign({}, this.state, { segments })));
+      .then(segments => this.props.receiveSegments(segments));
   };
   getAllSegments = () => {
     fetch(`/segments`)
       .then(res => res.json())
       .then(segments => segments.map(s =>
           Object.assign({}, s, { segment_id: s.id, speed: s.distance/s.elapsed_time, effort_speed: s.effort_distance/s.elapsed_time })))
-      .then(segments => this.setState(Object.assign({}, this.state, { segments, isFetchingSegments: false })));
+      .then(segments => {
+        this.props.receiveSegments(segments);
+        this.setState(Object.assign({}, this.state, { isFetchingSegments: false }))
+      });
   };
   updateSegmentLeaderboard(e, id) {
     e.preventDefault();
@@ -115,14 +114,14 @@ class App extends Component {
   }
   render() {
     const segments_to_render = this.state.solo_athlete_id || this.state.hide_athlete_id ?
-      this.state.filtered_segments : this.state.segments;
+      this.state.filtered_segments : this.props.segments;
     return (
       <div className="App">
 
         <FilterMenu
           filterSegmentsByAthlete={this.filterSegmentsByAthlete}
           filterSegmentsByClub={this.filterSegmentsByClub}
-          segments={this.state.segments}
+          segments={this.props.segments}
           clubs={this.state.clubs}
           athletes={this.state.athletes}
           soloAthlete={this.soloAthlete}
@@ -152,7 +151,7 @@ class App extends Component {
             <Route exact
                    path="/segments"
                    render={() =>
-                     <SegmentTable segments={this.state.segments} isFetching={this.state.isFetchingSegments}/>}
+                     <SegmentTable segments={this.props.segments} isFetching={this.state.isFetchingSegments}/>}
             />
           </div>
         </Router>
@@ -162,7 +161,7 @@ class App extends Component {
   }
 }
 
-const mapStateToProps = (state, props) => ({ segments: state.segments });
+const mapStateToProps = (state, props) => ({ segments: getSegments(state) });
 const mapDispatchToProps = (dispatch, ownProps) =>
   ({
     receiveSegments: segments => { dispatch(receiveSegments(segments)) },
