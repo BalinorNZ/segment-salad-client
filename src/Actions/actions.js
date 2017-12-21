@@ -1,3 +1,6 @@
+export const REQUEST_SEGMENTS = 'REQUEST_SEGMENTS';
+export const requestSegments = () => ({ type: REQUEST_SEGMENTS });
+
 export const RECEIVE_SEGMENTS = 'RECEIVE_SEGMENTS';
 export const receiveSegments = (segments) => ({ type: RECEIVE_SEGMENTS, segments });
 

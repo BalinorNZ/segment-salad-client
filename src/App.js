@@ -1,14 +1,14 @@
 import React, { Component } from 'react';
 import { BrowserRouter as Router, Link, Route } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { receiveSegments, receiveAthleteSegments } from './Actions/actions';
+import { requestSegments, receiveSegments, receiveAthleteSegments } from './Actions/actions';
 import './App.css';
 import Map from './Components/Map';
 import FilterMenu from './Components/FilterMenu';
 import SegmentTable from './Components/SegmentTable';
 import ActivityTable from './Components/ActivityTable';
 import Button from './Components/Button';
-import { getSegments } from './Reducers/reducers'
+import { getSegments, isFetchingSegments } from './Reducers/reducers'
 
 
 class App extends Component {
@@ -17,21 +17,18 @@ class App extends Component {
     solo_athlete_id: undefined,
     hide_athlete_id: undefined,
     filtered_segments: [],
-    isFetchingSegments: true,
     clubs: [],
     athletes: [],
   };
 
   componentDidMount() {
     // get list of segments with CR efforts attached
+    this.props.requestSegments();
     fetch(`/segments`)
       .then(res => res.json())
       .then(segments => segments.map(s =>
         Object.assign({}, s, { segment_id: s.id, speed: s.distance/s.elapsed_time, effort_speed: s.effort_distance/s.elapsed_time })))
-      .then(segments => {
-        this.props.receiveSegments(segments);
-        return this.setState(Object.assign({}, this.state, { isFetchingSegments: false }));
-      });
+      .then(segments => this.props.receiveSegments(segments));
 
     // get list of segments with current athlete's PB efforts attached
     fetch(`/athletes/${this.state.current_athlete_id}/segments`)
@@ -86,10 +83,7 @@ class App extends Component {
       .then(res => res.json())
       .then(segments => segments.map(s =>
           Object.assign({}, s, { segment_id: s.id, speed: s.distance/s.elapsed_time, effort_speed: s.effort_distance/s.elapsed_time })))
-      .then(segments => {
-        this.props.receiveSegments(segments);
-        this.setState(Object.assign({}, this.state, { isFetchingSegments: false }))
-      });
+      .then(segments => this.props.receiveSegments(segments));
   };
   updateSegmentLeaderboard(e, id) {
     e.preventDefault();
@@ -151,7 +145,7 @@ class App extends Component {
             <Route exact
                    path="/segments"
                    render={() =>
-                     <SegmentTable segments={this.props.segments} isFetching={this.state.isFetchingSegments}/>}
+                     <SegmentTable segments={this.props.segments} isFetching={this.props.isFetchingSegments}/>}
             />
           </div>
         </Router>
@@ -161,9 +155,14 @@ class App extends Component {
   }
 }
 
-const mapStateToProps = (state, props) => ({ segments: getSegments(state) });
+const mapStateToProps = (state, props) =>
+  ({
+    segments: getSegments(state),
+    isFetchingSegments: isFetchingSegments(state),
+  });
 const mapDispatchToProps = (dispatch, ownProps) =>
   ({
+    requestSegments: () => { dispatch(requestSegments()) },
     receiveSegments: segments => { dispatch(receiveSegments(segments)) },
     receiveAthleteSegments: segments => { dispatch(receiveAthleteSegments(segments)) },
   });

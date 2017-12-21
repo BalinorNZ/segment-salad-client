@@ -1,6 +1,7 @@
 import { combineReducers } from 'redux';
 //import { createSelector } from 'reselect';
 import {
+  REQUEST_SEGMENTS,
   RECEIVE_SEGMENTS,
   RECEIVE_ATHLETE_SEGMENTS,
 } from '../Actions/actions';
@@ -24,9 +25,21 @@ const athleteSegments = (state = [], action) => {
   }
 };
 
+const fetchingSegments = (state = false, action) => {
+  switch(action.type) {
+    case REQUEST_SEGMENTS:
+      return true;
+    case RECEIVE_SEGMENTS:
+      return false;
+    default:
+      return state;
+  }
+};
+
 const rootReducer = combineReducers({
   segments,
   athleteSegments,
+  fetchingSegments,
 });
 export default rootReducer;
 
@@ -37,3 +50,4 @@ export default rootReducer;
 
 export const getSegments = state => state.segments;
 export const getAthleteSegments = state => state.athleteSegments;
+export const isFetchingSegments = state => state.fetchingSegments;
