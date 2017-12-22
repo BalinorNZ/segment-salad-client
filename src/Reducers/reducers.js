@@ -48,6 +48,12 @@ export default rootReducer;
  * SELECTORS
 */
 
-export const getSegments = state => state.segments;
+export const getSegments = state => state.segments.map(s =>
+  Object.assign({}, s, {
+    segment_id: s.id,
+    speed: s.distance/s.elapsed_time,
+    effort_speed: s.effort_distance/s.elapsed_time
+  })
+);
 export const getAthleteSegments = state => state.athleteSegments;
 export const isFetchingSegments = state => state.fetchingSegments;

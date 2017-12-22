@@ -24,11 +24,6 @@ class App extends Component {
   componentDidMount() {
     // get list of segments with CR efforts attached
     this.props.requestSegments();
-    fetch(`/segments`)
-      .then(res => res.json())
-      .then(segments => segments.map(s =>
-        Object.assign({}, s, { segment_id: s.id, speed: s.distance/s.elapsed_time, effort_speed: s.effort_distance/s.elapsed_time })))
-      .then(segments => this.props.receiveSegments(segments));
 
     // get list of segments with current athlete's PB efforts attached
     fetch(`/athletes/${this.state.current_athlete_id}/segments`)
