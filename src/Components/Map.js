@@ -5,8 +5,7 @@ import polyline from 'polyline';
 import SegmentPolyline from './SegmentPolyline';
 import SegmentPopup from "./SegmentPopup";
 import * as _ from 'lodash';
-import { connect } from 'react-redux';
-import { getAthleteSegments } from '../Reducers/reducers'
+import { inject, observer } from "mobx-react"
 
 
 const Map = ReactMapboxGl({
@@ -69,7 +68,7 @@ class Mapbox extends Component {
       {this.state.popup &&
         <SegmentPopup coords={this.state.popup.coordinates}
                       segment={this.state.popup.segment}
-                      currentAthleteEffort={_.find(this.props.athleteSegments, s => s.id === this.state.popup.segment.id)}
+                      currentAthleteEffort={_.find(this.props.store.athleteSegments, s => s.id === this.state.popup.segment.id)}
                       updateSegmentLeaderboard={this.props.updateSegmentLeaderboard}
         />
       }
@@ -83,7 +82,5 @@ class Mapbox extends Component {
       }
     </Map>;
   }
-}
-
-const mapStateToProps = (state, props) => ({ athleteSegments: getAthleteSegments(state) });
-export default connect(mapStateToProps)(Mapbox);
+};
+export default inject("store")(observer(Mapbox));

@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import moment from 'moment';
 import * as _ from 'lodash';
 import Spinner from './Spinner';
+import { inject, observer } from "mobx-react";
 
 
 class SegmentTable extends Component {
@@ -22,9 +23,9 @@ class SegmentTable extends Component {
       : this.setState(Object.assign({}, this.state, { sort: field, order: 'ASC' }));
   }
   render() {
-    if(this.props.isFetching) return(<Spinner />);
+    if(this.props.store.isFetching) return(<Spinner />);
 
-    let sorted_segments = _.sortBy(this.props.segments, (segment) => segment[this.state.sort]);
+    let sorted_segments = _.sortBy(this.props.store.getSegments(), (segment) => segment[this.state.sort]);
     if(this.state.order === 'DESC') sorted_segments = sorted_segments.reverse();
     return (
       <div className="segment-view">
@@ -70,6 +71,6 @@ class SegmentTable extends Component {
       </div>
     );
   }
-}
+};
 
-export default SegmentTable;
+export default inject("store")(observer(SegmentTable));

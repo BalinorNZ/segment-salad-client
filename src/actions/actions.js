@@ -1,3 +1,8 @@
+export const ADD_SEGMENT = "ADD_SEGMENT";
+export const addSegment = segment => ({ type: ADD_SEGMENT, segment });
+
+export const FETCH_SEGMENTS = "FETCH_SEGMENTS";
+
 export const REQUEST_SEGMENTS = 'REQUEST_SEGMENTS';
 export const requestSegments = () => ({ type: REQUEST_SEGMENTS });
 

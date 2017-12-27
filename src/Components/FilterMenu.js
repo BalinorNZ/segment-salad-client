@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import Button from './Button';
 import Autosuggest from 'react-autosuggest';
 import * as _ from 'lodash';
+import { inject, observer } from "mobx-react";
 
 
 class FilterMenu extends Component {
@@ -43,7 +44,7 @@ class FilterMenu extends Component {
           {/*/>*/}
 
           <h4>Athlete</h4>
-          <AutoComplete athletes={this.props.athletes} onChange={this.setAthleteId} />
+          <AutoComplete athletes={this.props.store.athletes} onChange={this.setAthleteId} />
           <Button buttonText='Filter'
                   onClick={this.props.filterSegmentsByAthlete}
                   onClickParams={this.state.athlete_id}
@@ -52,7 +53,7 @@ class FilterMenu extends Component {
           <h4>Club</h4>
           <select className="text" onChange={this.selectClub}>
             <option value=''>Select a club...</option>
-            {this.props.clubs.map(club =>
+            {this.props.store.clubs.map(club =>
               <option key={club.id} value={club.id}>{club.name}</option>
             )}
           </select>
@@ -90,11 +91,10 @@ class FilterMenu extends Component {
     );
   }
 }
+export default inject("store")(observer(FilterMenu));
 
-export default FilterMenu;
 
-
-class AutoComplete extends React.Component {
+const AutoComplete = inject("store")(observer(class AutoComplete extends React.Component {
   constructor() {
     super();
     this.state = {
@@ -109,7 +109,7 @@ class AutoComplete extends React.Component {
     if (escapedValue === '') return [];
     const regex = new RegExp('^' + escapedValue, 'i');
     // limit suggestions to 10
-    return this.props.athletes.filter(athlete => regex.test(athlete.athlete_name)).slice(0, 10);
+    return this.props.store.athletes.filter(athlete => regex.test(athlete.athlete_name)).slice(0, 10);
   };
   onChange = (event, { newValue, method }) => {
     this.setState({ value: newValue });
@@ -154,4 +154,4 @@ class AutoComplete extends React.Component {
       />
     );
   }
-}
+}));

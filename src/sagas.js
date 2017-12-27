@@ -1,5 +1,5 @@
 import { call, put, takeLatest } from 'redux-saga/effects';
-import { REQUEST_SEGMENTS, RECEIVE_SEGMENTS } from './Actions/actions';
+import { REQUEST_SEGMENTS, RECEIVE_SEGMENTS } from './actions/actions';
 const api = url => fetch(url).then(res => res.json());
 
 function* fetchSections(action) {

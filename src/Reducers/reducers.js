@@ -4,7 +4,7 @@ import {
   REQUEST_SEGMENTS,
   RECEIVE_SEGMENTS,
   RECEIVE_ATHLETE_SEGMENTS,
-} from '../Actions/actions';
+} from '../actions/actions';
 
 
 const segments = (state = [], action) => {

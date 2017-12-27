@@ -1,44 +1,30 @@
 import React, { Component } from 'react';
 import { BrowserRouter as Router, Link, Route } from 'react-router-dom';
-import { connect } from 'react-redux';
-import { requestSegments, receiveSegments, receiveAthleteSegments } from './Actions/actions';
 import './App.css';
 import Map from './Components/Map';
 import FilterMenu from './Components/FilterMenu';
 import SegmentTable from './Components/SegmentTable';
 import ActivityTable from './Components/ActivityTable';
 import Button from './Components/Button';
-import { getSegments, isFetchingSegments } from './Reducers/reducers'
+import { observer, inject } from "mobx-react";
 
 
 class App extends Component {
   state = {
-    current_athlete_id: 4734138, //TODO: this should be set dynamically after authenticating with Strava
     solo_athlete_id: undefined,
     hide_athlete_id: undefined,
     filtered_segments: [],
-    clubs: [],
-    athletes: [],
   };
 
   componentDidMount() {
     // get list of segments with CR efforts attached
-    this.props.requestSegments();
-
+    this.props.store.fetchSegments().then(() => console.log("Fetch all segments complete."));
     // get list of segments with current athlete's PB efforts attached
-    fetch(`/athletes/${this.state.current_athlete_id}/segments`)
-      .then(res => res.json())
-      .then(segments => segments.map(s =>
-        Object.assign({}, s, { segment_id: s.id, speed: s.distance/s.elapsed_time, effort_speed: s.effort_distance/s.elapsed_time })))
-      .then(athlete_segments => this.props.receiveAthleteSegments(athlete_segments));
-
-    fetch(`/list_clubs`)
-      .then(res => res.json())
-      .then(clubs => this.setState(Object.assign({}, this.state, { clubs })));
-
-    fetch(`/athletes`)
-      .then(res => res.json())
-      .then(athletes => this.setState(Object.assign({}, this.state, { athletes })));
+    this.props.store.fetchAthleteSegments().then(() => console.log("Fetch athlete segments complete."));
+    // get clubs for club select filter
+    this.props.store.fetchClubs().then(() => console.log("Fetch clubs complete."));
+    // get athletes for athlete autocomplete filter
+    this.props.store.fetchAthletes().then(() => console.log("Fetch athletes complete."));
   };
   soloAthlete = athlete_id => {
     const solo_athlete_id = athlete_id === this.state.solo_athlete_id ? undefined : athlete_id;
@@ -55,30 +41,19 @@ class App extends Component {
       this.getAllSegments();
       return;
     }
-    console.log("filter by athlete", athlete_id);
-    fetch(`/athletes/${athlete_id}/segments`)
-      .then(res => res.json())
-      .then(segments => segments.map(s =>
-        Object.assign({}, s, { segment_id: s.id, speed: s.distance/s.elapsed_time, effort_speed: s.effort_distance/s.elapsed_time })))
-      .then(segments => this.props.receiveSegments(segments));
+    this.props.store.fetchSegmentsByAthlete(athlete_id)
+      .then(() => console.log(`Fetch segments by athlete ${athlete_id} complete.`));
   };
   filterSegmentsByClub = club_id => {
     if(!club_id){
       this.getAllSegments();
       return;
     }
-    fetch(`/clubs/${club_id}/segments`)
-      .then(res => res.json())
-      .then(segments => segments.map(s =>
-        Object.assign({}, s, { segment_id: s.id, speed: s.distance/s.elapsed_time, effort_speed: s.effort_distance/s.elapsed_time })))
-      .then(segments => this.props.receiveSegments(segments));
+    this.props.store.fetchSegmentsByClub(club_id)
+      .then(() => console.log(`Fetch segments by club ${club_id} complete.`));
   };
   getAllSegments = () => {
-    fetch(`/segments`)
-      .then(res => res.json())
-      .then(segments => segments.map(s =>
-          Object.assign({}, s, { segment_id: s.id, speed: s.distance/s.elapsed_time, effort_speed: s.effort_distance/s.elapsed_time })))
-      .then(segments => this.props.receiveSegments(segments));
+    this.props.store.fetchSegments().then(() => console.log("Fetch all segments complete."));
   };
   updateSegmentLeaderboard(e, id) {
     e.preventDefault();
@@ -103,16 +78,16 @@ class App extends Component {
   }
   render() {
     const segments_to_render = this.state.solo_athlete_id || this.state.hide_athlete_id ?
-      this.state.filtered_segments : this.props.segments;
+      this.state.filtered_segments : this.props.store.getSegments();
     return (
       <div className="App">
 
         <FilterMenu
           filterSegmentsByAthlete={this.filterSegmentsByAthlete}
           filterSegmentsByClub={this.filterSegmentsByClub}
-          segments={this.props.segments}
-          clubs={this.state.clubs}
-          athletes={this.state.athletes}
+          segments={this.props.store.getSegments()}
+          clubs={this.props.store.clubs}
+          athletes={this.props.store.athletes}
           soloAthlete={this.soloAthlete}
           hideAthlete={this.hideAthlete}
           soloAthleteId={this.state.solo_athlete_id}
@@ -124,7 +99,7 @@ class App extends Component {
         />
 
         <Button buttonText="Scan activities for new segments"
-                onClick={() => this.getSegmentsForActivities(this.state.current_athlete_id)}/>
+                onClick={() => this.getSegmentsForActivities(this.props.store.current_athlete_id)}/>
         <Button buttonText="Refresh all segment efforts" onClick={this.getAllSegmentsEfforts}/>
         <Button buttonText="Refresh effortless segment efforts" onClick={this.getEffortlessSegmentsEfforts}/>
 
@@ -136,7 +111,7 @@ class App extends Component {
                 <li><Link to="/segments">Segments</Link></li>
               </ul>
             </div>
-            <Route exact path="/" render={() => <ActivityTable athlete={this.state.current_athlete_id}/>} />
+            <Route exact path="/" render={() => <ActivityTable athlete={this.props.store.current_athlete_id}/>} />
             <Route exact
                    path="/segments"
                    render={() =>
@@ -148,17 +123,5 @@ class App extends Component {
       </div>
     );
   }
-}
-
-const mapStateToProps = (state, props) =>
-  ({
-    segments: getSegments(state),
-    isFetchingSegments: isFetchingSegments(state),
-  });
-const mapDispatchToProps = (dispatch, ownProps) =>
-  ({
-    requestSegments: () => { dispatch(requestSegments()) },
-    receiveSegments: segments => { dispatch(receiveSegments(segments)) },
-    receiveAthleteSegments: segments => { dispatch(receiveAthleteSegments(segments)) },
-  });
-export default connect(mapStateToProps, mapDispatchToProps)(App);
+};
+export default inject("store")(observer(App));
