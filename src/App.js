@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
 import { BrowserRouter as Router, Link, Route } from 'react-router-dom';
 import './App.css';
-import Map from './Components/Map';
-import FilterMenu from './Components/FilterMenu';
-import SegmentTable from './Components/SegmentTable';
-import ActivityTable from './Components/ActivityTable';
-import Button from './Components/Button';
+import Map from './components/Map';
+import FilterMenu from './components/FilterMenu';
+import SegmentTable from './components/SegmentTable';
+import ActivityTable from './components/ActivityTable';
+import Button from './components/Button';
 import { observer, inject } from "mobx-react";
 
 
