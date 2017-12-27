@@ -56,7 +56,7 @@ const PopupContent = ({segment, updateSegmentLeaderboard, currentAthleteEffort})
         <div className="clear"></div>
         <div className="records">
           <div className="avatar avatar-athlete avatar-md">
-            <img src={segment.athlete_profile} />
+            <img src={segment.athlete_profile} alt="Athlete profile pic" />
           </div>
           <div className="record-stat">
             <strong>CR: </strong>

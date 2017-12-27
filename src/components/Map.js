@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import 'mapbox-gl/dist/mapbox-gl.css';
-import ReactMapboxGl, { Layer, Feature, Marker, Popup, GeoJSONLayer, ZoomControl, ScaleControl, RotationControl } from "react-mapbox-gl";
-import polyline from 'polyline';
+import ReactMapboxGl, { ZoomControl, ScaleControl, RotationControl } from "react-mapbox-gl";
+//import polyline from 'polyline';
 import SegmentPolyline from './SegmentPolyline';
 import SegmentPopup from "./SegmentPopup";
 import * as _ from 'lodash';
@@ -48,16 +48,16 @@ class Mapbox extends Component {
 
   render() {
     // Generate geojson feature collection which can be input into geojson-vt to make vector tiles
-    const geojson = {
-      "type": "FeatureCollection",
-      "features": this.props.segments.map(segment => (
-        {
-          "type": "Feature",
-          "properties": { "name": segment.name },
-          "geometry": {"type": "LineString", "coordinates": polyline.decode(segment.points).map(latlong => [latlong[1], latlong[0]])}
-        }
-      )),
-    };
+    // const geojson = {
+    //   "type": "FeatureCollection",
+    //   "features": this.props.segments.map(segment => (
+    //     {
+    //       "type": "Feature",
+    //       "properties": { "name": segment.name },
+    //       "geometry": {"type": "LineString", "coordinates": polyline.decode(segment.points).map(latlong => [latlong[1], latlong[0]])}
+    //     }
+    //   )),
+    // };
     //console.log(JSON.stringify(geojson));
 
     return <Map {...this.mapProps}>

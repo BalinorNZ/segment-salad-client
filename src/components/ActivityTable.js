@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import moment from 'moment';
-import * as _ from 'lodash';
 import Spinner from './Spinner';
 import Zones from './Zones';
 import Pagination from './Pagination';
@@ -20,7 +19,7 @@ class ActivityTable extends Component {
   }
   handleClick(e) {
     e.preventDefault();
-    this.getActivities(parseInt(e.target.innerHTML));
+    this.getActivities(parseInt(e.target.innerHTML, 10));
   }
   convertSpeedToPace(speed) {
     const total_seconds = 1000 / speed;

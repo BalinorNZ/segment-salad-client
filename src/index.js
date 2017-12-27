@@ -4,7 +4,7 @@ import './index.css';
 import App from './App';
 import { Provider } from 'mobx-react';
 import RootStore from "./models/root";
-import { asReduxStore, connectReduxDevtools } from "mst-middlewares";
+import { connectReduxDevtools } from "mst-middlewares";
 const initialState = {};
 
 

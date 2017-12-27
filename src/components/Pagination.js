@@ -20,7 +20,10 @@ class Pagination extends Component {
     // TODO: this makes one too many page indexes (last page is empty)
     let pages = [...Array(Math.ceil(activity_total/50)).keys()];
     return (
-      <ul className="zones">{pages.map(p => <li key={p} onClick={this.props.getActivities}><a href="#">{p+1}</a></li>)}</ul>
+      <ul className="zones">
+        {pages.map(p =>
+          <li key={p} onClick={this.props.getActivities}><a href={"/page/"+(p+1)}>{p+1}</a></li>)}
+      </ul>
     );
   }
 }
