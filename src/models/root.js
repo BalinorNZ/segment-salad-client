@@ -1,4 +1,3 @@
-import { ADD_SEGMENT, FETCH_SEGMENTS } from "../actions/actions"
 import { types, flow } from "mobx-state-tree";
 import Segment from "./segment";
 import Athlete from "./athlete";
@@ -73,20 +72,15 @@ const Store = types
         console.log(e);
       }
     }),
+    updateReduxState: function() {
+      return;
+    },
     // [ADD_SEGMENT]({ segment_name }) {
     //   const id = self.segments.reduce((maxId, segment) => Math.max(segment.id, maxId), -1) + 1
     //   self.segments.unshift({
     //     id,
     //     segment_name
     //   })
-    // },
-    // [FETCH_SEGMENTS]: function* () {
-    //   try {
-    //     const segments = yield fetch(`/segments`).then(res => res.json());
-    //     self.segments.concat(segments);
-    //   } catch (e) {
-    //     console.log(e);
-    //   }
     // },
   }));
 

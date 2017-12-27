@@ -18,13 +18,13 @@ class App extends Component {
 
   componentDidMount() {
     // get list of segments with CR efforts attached
-    this.props.store.fetchSegments().then(() => console.log("Fetch all segments complete."));
+    this.props.store.fetchSegments().then(() => this.props.store.updateReduxState());
     // get list of segments with current athlete's PB efforts attached
-    this.props.store.fetchAthleteSegments().then(() => console.log("Fetch athlete segments complete."));
+    this.props.store.fetchAthleteSegments().then(() => this.props.store.updateReduxState());
     // get clubs for club select filter
-    this.props.store.fetchClubs().then(() => console.log("Fetch clubs complete."));
+    this.props.store.fetchClubs().then(() => this.props.store.updateReduxState());
     // get athletes for athlete autocomplete filter
-    this.props.store.fetchAthletes().then(() => console.log("Fetch athletes complete."));
+    this.props.store.fetchAthletes().then(() => this.props.store.updateReduxState());
   };
   soloAthlete = athlete_id => {
     const solo_athlete_id = athlete_id === this.state.solo_athlete_id ? undefined : athlete_id;
@@ -42,7 +42,7 @@ class App extends Component {
       return;
     }
     this.props.store.fetchSegmentsByAthlete(athlete_id)
-      .then(() => console.log(`Fetch segments by athlete ${athlete_id} complete.`));
+      .then(() => this.props.store.updateReduxState());
   };
   filterSegmentsByClub = club_id => {
     if(!club_id){
@@ -50,10 +50,10 @@ class App extends Component {
       return;
     }
     this.props.store.fetchSegmentsByClub(club_id)
-      .then(() => console.log(`Fetch segments by club ${club_id} complete.`));
+      .then(() => this.props.store.updateReduxState());
   };
   getAllSegments = () => {
-    this.props.store.fetchSegments().then(() => console.log("Fetch all segments complete."));
+    this.props.store.fetchSegments().then(() =>  this.props.store.updateReduxState());
   };
   updateSegmentLeaderboard(e, id) {
     e.preventDefault();
@@ -85,9 +85,6 @@ class App extends Component {
         <FilterMenu
           filterSegmentsByAthlete={this.filterSegmentsByAthlete}
           filterSegmentsByClub={this.filterSegmentsByClub}
-          segments={this.props.store.getSegments()}
-          clubs={this.props.store.clubs}
-          athletes={this.props.store.athletes}
           soloAthlete={this.soloAthlete}
           hideAthlete={this.hideAthlete}
           soloAthleteId={this.state.solo_athlete_id}
@@ -115,7 +112,7 @@ class App extends Component {
             <Route exact
                    path="/segments"
                    render={() =>
-                     <SegmentTable segments={this.props.segments} isFetching={this.props.isFetchingSegments}/>}
+                     <SegmentTable />}
             />
           </div>
         </Router>

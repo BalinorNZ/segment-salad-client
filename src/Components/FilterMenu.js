@@ -23,7 +23,7 @@ class FilterMenu extends Component {
   render() {
     const visibility = this.state.visible ? "show": "hide";
     const arrow = this.state.visible ? "◁" : "▷";
-    const groups = _.groupBy(this.props.segments, s => s.athlete_id);
+    const groups = _.groupBy(this.props.store.getSegments(), s => s.athlete_id);
     const sortedGroups = _.sortBy(Object.keys(groups)
       .map(athlete_id => ({ athlete_id, athlete_name: groups[athlete_id][0].athlete_name, segment_count: groups[athlete_id].length })), 'segment_count')
       .reverse()
@@ -84,7 +84,7 @@ class FilterMenu extends Component {
                 </li>
               )}
             </ul>
-            <p><b>Total segments:</b> {this.props.segments.length}</p>
+            <p><b>Total segments:</b> {this.props.store.getSegments().length}</p>
           </div>
         </div>
       </div>
