@@ -83,13 +83,6 @@ const Store = types
       }
     }),
     updateReduxState() {},
-    // [ADD_SEGMENT]({ segment_name }) {
-    //   const id = self.segments.reduce((maxId, segment) => Math.max(segment.id, maxId), -1) + 1
-    //   self.segments.unshift({
-    //     id,
-    //     segment_name
-    //   })
-    // },
   }));
 
 export default Store;
