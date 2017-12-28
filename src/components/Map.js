@@ -50,7 +50,7 @@ class Mapbox extends Component {
     // Generate geojson feature collection which can be input into geojson-vt to make vector tiles
     // const geojson = {
     //   "type": "FeatureCollection",
-    //   "features": this.props.segments.map(segment => (
+    //   "features": this.props.store.getSegments().map(segment => (
     //     {
     //       "type": "Feature",
     //       "properties": { "name": segment.name },

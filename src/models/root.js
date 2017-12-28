@@ -19,8 +19,8 @@ const Store = types
   .views(self => ({
     // utilities
     findSegmentById: (id) => self.segments.find(s => s.id === id),
-    getSegments: () => self.segments,
-    getFilteredSegments: () => self.segments
+    getSegments: () => self.segments.filter(s => s.entry_count >= 5),
+    getFilteredSegments: () => self.getSegments()
         .filter(s => self.soloAthleteId ? s.athlete_id === self.soloAthleteId : true)
         .filter(s => self.hideAthleteId ? s.athlete_id !== self.hideAthleteId : true),
   }))
