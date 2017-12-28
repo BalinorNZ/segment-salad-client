@@ -1,8 +1,9 @@
 import React from 'react';
 import { Popup } from "react-mapbox-gl";
+import { inject, observer } from "mobx-react"
 
 
-const SegmentPopup = ({coords, segment, currentAthleteEffort, updateSegmentLeaderboard}) => (
+const SegmentPopup = ({coords, segment, currentAthleteEffort}) => (
   <Popup coordinates={coords}
          anchor={'bottom'}
          offset={0}
@@ -11,7 +12,6 @@ const SegmentPopup = ({coords, segment, currentAthleteEffort, updateSegmentLeade
   >
     <PopupContent segment={segment}
                   currentAthleteEffort={currentAthleteEffort}
-                  updateSegmentLeaderboard={updateSegmentLeaderboard}
     />
   </Popup>
 );
@@ -19,7 +19,7 @@ const SegmentPopup = ({coords, segment, currentAthleteEffort, updateSegmentLeade
 export default SegmentPopup;
 
 // TODO: send current athlete effort data to popup for comparison with CR (generate percentile)
-const PopupContent = ({segment, updateSegmentLeaderboard, currentAthleteEffort}) => (
+const PopupContent = inject("store")(observer(({segment, currentAthleteEffort, store}) => (
   <div className="popup-content-wrapper">
     <div className="segment-info-popup segment-info-box">
       <div className="info-box-header">
@@ -80,7 +80,7 @@ const PopupContent = ({segment, updateSegmentLeaderboard, currentAthleteEffort})
       </div>
       <div className="details-link explorer-performance-goals-beta">
         <a className="alt button create-goal"
-           onClick={(e) => updateSegmentLeaderboard(e, segment.segment_id)}
+           onClick={() => store.updateSegmentLeaderboard(segment.segment_id)}
         >
           Update
         </a>
@@ -91,7 +91,7 @@ const PopupContent = ({segment, updateSegmentLeaderboard, currentAthleteEffort})
       </div>
     </div>
   </div>
-);
+)));
 
 function formatDistance(d) {
   if(!d) return 0;

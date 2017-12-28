@@ -20,6 +20,17 @@ class FilterMenu extends Component {
   selectClub = e => {
     this.setState(Object.assign({}, this.state, { club_id: e.target.value }));
   };
+  filterSegmentsByAthlete = athlete_id => {
+    !athlete_id ? this.getAllSegments() :
+      this.props.store.fetchSegmentsByAthlete(athlete_id).then(() => this.props.store.updateReduxState());
+  };
+  filterSegmentsByClub = club_id => {
+    !club_id ? this.getAllSegments() :
+      this.props.store.fetchSegmentsByClub(club_id).then(() => this.props.store.updateReduxState());
+  };
+  getAllSegments = () => {
+    this.props.store.fetchSegments().then(() => this.props.store.updateReduxState());
+  };
   render() {
     const visibility = this.state.visible ? "show": "hide";
     const arrow = this.state.visible ? "◁" : "▷";
@@ -46,7 +57,7 @@ class FilterMenu extends Component {
           <h4>Athlete</h4>
           <AutoComplete athletes={this.props.store.athletes} onChange={this.setAthleteId} />
           <Button buttonText='Filter'
-                  onClick={this.props.filterSegmentsByAthlete}
+                  onClick={this.filterSegmentsByAthlete}
                   onClickParams={this.state.athlete_id}
           />
 
@@ -58,7 +69,7 @@ class FilterMenu extends Component {
             )}
           </select>
           <Button buttonText='Filter'
-                  onClick={this.props.filterSegmentsByClub}
+                  onClick={this.filterSegmentsByClub}
                   onClickParams={this.state.club_id}
           />
 

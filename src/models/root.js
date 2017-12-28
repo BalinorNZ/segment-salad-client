@@ -12,7 +12,8 @@ const Store = types
     athleteSegments: types.optional(types.array(Segment), []),
     clubs: types.optional(types.array(Club), []),
     athletes: types.optional(types.array(Athlete), []),
-    isFetching: false,
+    isFetchingSegments: false,
+
   })
   .views(self => ({
     // utilities
@@ -40,10 +41,10 @@ const Store = types
       }
     }),
     fetchSegments: flow(function* fetchSegments() {
-      self.isFetching = true;
+      self.isFetchingSegments = true;
       try {
         self.segments = yield fetch(`/segments`).then(res => res.json());
-        self.isFetching = false;
+        self.isFetchingSegments = false;
       } catch(e) {
         console.log(e);
       }
@@ -68,6 +69,13 @@ const Store = types
       try {
         self.segments.clear();
         self.segments = yield fetch(`/clubs/${club_id}/segments`).then(res => res.json());
+      } catch(e) {
+        console.log(e);
+      }
+    }),
+    updateSegmentLeaderboard: flow(function* updateSegmentLeaderboard(id) {
+      try {
+        yield fetch(`/segments/${id}/updateleaderboard`).then(res => res.json());
       } catch(e) {
         console.log(e);
       }

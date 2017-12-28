@@ -23,7 +23,7 @@ class SegmentTable extends Component {
       : this.setState(Object.assign({}, this.state, { sort: field, order: 'ASC' }));
   }
   render() {
-    if(this.props.store.isFetching) return(<Spinner />);
+    if(this.props.store.isFetchingSegments) return(<Spinner />);
 
     let sorted_segments = _.sortBy(this.props.store.getSegments(), (segment) => segment[this.state.sort]);
     if(this.state.order === 'DESC') sorted_segments = sorted_segments.reverse();

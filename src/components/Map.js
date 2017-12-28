@@ -69,7 +69,6 @@ class Mapbox extends Component {
         <SegmentPopup coords={this.state.popup.coordinates}
                       segment={this.state.popup.segment}
                       currentAthleteEffort={_.find(this.props.store.athleteSegments, s => s.id === this.state.popup.segment.id)}
-                      updateSegmentLeaderboard={this.props.updateSegmentLeaderboard}
         />
       }
       {this.props.segments.slice(0, 1000).map(segment =>

@@ -11,9 +11,9 @@ import { observer, inject } from "mobx-react";
 
 class App extends Component {
   state = {
-    solo_athlete_id: undefined,
-    hide_athlete_id: undefined,
-    filtered_segments: [],
+    solo_athlete_id: undefined, //TODO
+    hide_athlete_id: undefined, //TODO
+    filtered_segments: [], //TODO
   };
 
   componentDidMount() {
@@ -26,41 +26,16 @@ class App extends Component {
     // get athletes for athlete autocomplete filter
     this.props.store.fetchAthletes().then(() => this.props.store.updateReduxState());
   };
-  soloAthlete = athlete_id => {
+  soloAthlete = athlete_id => { //TODO
     const solo_athlete_id = athlete_id === this.state.solo_athlete_id ? undefined : athlete_id;
     const filtered_segments = this.props.segments.filter(s => s.athlete_id === athlete_id);
     this.setState(Object.assign({}, this.state, { filtered_segments, solo_athlete_id }));
   };
-  hideAthlete = athlete_id => {
+  hideAthlete = athlete_id => { //TODO
     const hide_athlete_id = athlete_id === this.state.hide_athlete_id ? undefined : athlete_id;
     const filtered_segments = this.props.segments.filter(s => s.athlete_id !== athlete_id);
     this.setState(Object.assign({}, this.state, { filtered_segments, hide_athlete_id }));
   };
-  filterSegmentsByAthlete = athlete_id => {
-    if(!athlete_id){
-      this.getAllSegments();
-      return;
-    }
-    this.props.store.fetchSegmentsByAthlete(athlete_id)
-      .then(() => this.props.store.updateReduxState());
-  };
-  filterSegmentsByClub = club_id => {
-    if(!club_id){
-      this.getAllSegments();
-      return;
-    }
-    this.props.store.fetchSegmentsByClub(club_id)
-      .then(() => this.props.store.updateReduxState());
-  };
-  getAllSegments = () => {
-    this.props.store.fetchSegments().then(() =>  this.props.store.updateReduxState());
-  };
-  updateSegmentLeaderboard(e, id) {
-    e.preventDefault();
-    fetch(`/segments/${id}/updateleaderboard`)
-      .then(res => res.json())
-      .then(efforts => console.log(efforts[0]));
-  }
   getSegmentsForActivities(athlete_id) {
     fetch(`/segments/scanactivities/${athlete_id}`)
       .then(res => res.json())
@@ -78,22 +53,18 @@ class App extends Component {
   }
   render() {
     const segments_to_render = this.state.solo_athlete_id || this.state.hide_athlete_id ?
-      this.state.filtered_segments : this.props.store.getSegments();
+      this.state.filtered_segments : this.props.store.getSegments(); //TODO
     return (
       <div className="App">
 
         <FilterMenu
-          filterSegmentsByAthlete={this.filterSegmentsByAthlete}
-          filterSegmentsByClub={this.filterSegmentsByClub}
-          soloAthlete={this.soloAthlete}
-          hideAthlete={this.hideAthlete}
-          soloAthleteId={this.state.solo_athlete_id}
-          hideAthleteId={this.state.hide_athlete_id}
+          soloAthlete={this.soloAthlete} //TODO
+          hideAthlete={this.hideAthlete} //TODO
+          soloAthleteId={this.state.solo_athlete_id} //TODO
+          hideAthleteId={this.state.hide_athlete_id} //TODO
         />
 
-        <Map segments={segments_to_render}
-             updateSegmentLeaderboard={this.updateSegmentLeaderboard}
-        />
+        <Map segments={segments_to_render} /> //TODO
 
         <Button buttonText="Scan activities for new segments"
                 onClick={() => this.getSegmentsForActivities(this.props.store.current_athlete_id)}/>
@@ -109,16 +80,12 @@ class App extends Component {
               </ul>
             </div>
             <Route exact path="/" render={() => <ActivityTable athlete={this.props.store.current_athlete_id}/>} />
-            <Route exact
-                   path="/segments"
-                   render={() =>
-                     <SegmentTable />}
-            />
+            <Route exact path="/segments" render={() => <SegmentTable />} />
           </div>
         </Router>
 
       </div>
     );
   }
-};
+}
 export default inject("store")(observer(App));
