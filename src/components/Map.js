@@ -71,7 +71,7 @@ class Mapbox extends Component {
                       currentAthleteEffort={_.find(this.props.store.athleteSegments, s => s.id === this.state.popup.segment.id)}
         />
       }
-      {this.props.segments.slice(0, 1000).map(segment =>
+      {this.props.store.getFilteredSegments().slice(0, 1000).map(segment =>
         <SegmentPolyline key={`line-${segment.activity_id}-${segment.id}`}
                      id={`${segment.activity_id}-${segment.id}`}
                      segment={segment}

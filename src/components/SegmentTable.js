@@ -25,7 +25,7 @@ class SegmentTable extends Component {
   render() {
     if(this.props.store.isFetchingSegments) return(<Spinner />);
 
-    let sorted_segments = _.sortBy(this.props.store.getSegments(), (segment) => segment[this.state.sort]);
+    let sorted_segments = _.sortBy(this.props.store.getFilteredSegments(), (segment) => segment[this.state.sort]);
     if(this.state.order === 'DESC') sorted_segments = sorted_segments.reverse();
     return (
       <div className="segment-view">

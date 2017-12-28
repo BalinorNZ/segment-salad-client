@@ -21,14 +21,14 @@ class FilterMenu extends Component {
     this.setState(Object.assign({}, this.state, { club_id: e.target.value }));
   };
   filterSegmentsByAthlete = athlete_id => {
-    !athlete_id ? this.getAllSegments() :
+    !athlete_id ? this.fetchAllSegments() :
       this.props.store.fetchSegmentsByAthlete(athlete_id).then(() => this.props.store.updateReduxState());
   };
   filterSegmentsByClub = club_id => {
-    !club_id ? this.getAllSegments() :
+    !club_id ? this.fetchAllSegments() :
       this.props.store.fetchSegmentsByClub(club_id).then(() => this.props.store.updateReduxState());
   };
-  getAllSegments = () => {
+  fetchAllSegments = () => {
     this.props.store.fetchSegments().then(() => this.props.store.updateReduxState());
   };
   render() {
@@ -80,15 +80,15 @@ class FilterMenu extends Component {
                 <li key={athlete.athlete_id}>
                   <span className="solo-icon"
                         title={`Hide all segments held by ${athlete.athlete_name}`}
-                        onClick={() => this.props.hideAthlete(athlete.athlete_id)}
+                        onClick={() => this.props.store.hideAthlete(athlete.athlete_id)}
                   >
-                    {this.props.hideAthleteId === athlete.athlete_id ? '◻ ' : '◼ '}
+                    {this.props.store.hideAthleteId === athlete.athlete_id ? '◻ ' : '◼ '}
                   </span>
                   <span className="hide-icon"
                         title={`Show only segments held by ${athlete.athlete_name}`}
-                        onClick={() => this.props.soloAthlete(athlete.athlete_id)}
+                        onClick={() => this.props.store.soloAthlete(athlete.athlete_id)}
                   >
-                    {this.props.soloAthleteId === athlete.athlete_id ? '◉ ' : '◎ '}
+                    {this.props.store.soloAthleteId === athlete.athlete_id ? '◉ ' : '◎ '}
                   </span>
                   <span className="athlete-name">{athlete.athlete_name}</span>
                   <span className="segment-count">{athlete.segment_count}</span>

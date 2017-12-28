@@ -10,12 +10,6 @@ import { observer, inject } from "mobx-react";
 
 
 class App extends Component {
-  state = {
-    solo_athlete_id: undefined, //TODO
-    hide_athlete_id: undefined, //TODO
-    filtered_segments: [], //TODO
-  };
-
   componentDidMount() {
     // get list of segments with CR efforts attached
     this.props.store.fetchSegments().then(() => this.props.store.updateReduxState());
@@ -25,16 +19,6 @@ class App extends Component {
     this.props.store.fetchClubs().then(() => this.props.store.updateReduxState());
     // get athletes for athlete autocomplete filter
     this.props.store.fetchAthletes().then(() => this.props.store.updateReduxState());
-  };
-  soloAthlete = athlete_id => { //TODO
-    const solo_athlete_id = athlete_id === this.state.solo_athlete_id ? undefined : athlete_id;
-    const filtered_segments = this.props.segments.filter(s => s.athlete_id === athlete_id);
-    this.setState(Object.assign({}, this.state, { filtered_segments, solo_athlete_id }));
-  };
-  hideAthlete = athlete_id => { //TODO
-    const hide_athlete_id = athlete_id === this.state.hide_athlete_id ? undefined : athlete_id;
-    const filtered_segments = this.props.segments.filter(s => s.athlete_id !== athlete_id);
-    this.setState(Object.assign({}, this.state, { filtered_segments, hide_athlete_id }));
   };
   getSegmentsForActivities(athlete_id) {
     fetch(`/segments/scanactivities/${athlete_id}`)
@@ -52,22 +36,16 @@ class App extends Component {
       .then(payload => console.log(payload));
   }
   render() {
-    const segments_to_render = this.state.solo_athlete_id || this.state.hide_athlete_id ?
-      this.state.filtered_segments : this.props.store.getSegments(); //TODO
     return (
       <div className="App">
 
-        <FilterMenu
-          soloAthlete={this.soloAthlete} //TODO
-          hideAthlete={this.hideAthlete} //TODO
-          soloAthleteId={this.state.solo_athlete_id} //TODO
-          hideAthleteId={this.state.hide_athlete_id} //TODO
-        />
+        <FilterMenu />
 
-        <Map segments={segments_to_render} /> //TODO
+        <Map />
 
         <Button buttonText="Scan activities for new segments"
-                onClick={() => this.getSegmentsForActivities(this.props.store.current_athlete_id)}/>
+                onClick={() => this.getSegmentsForActivities(this.props.store.currentAthleteId)}
+        />
         <Button buttonText="Refresh all segment efforts" onClick={this.getAllSegmentsEfforts}/>
         <Button buttonText="Refresh effortless segment efforts" onClick={this.getEffortlessSegmentsEfforts}/>
 
@@ -79,7 +57,7 @@ class App extends Component {
                 <li><Link to="/segments">Segments</Link></li>
               </ul>
             </div>
-            <Route exact path="/" render={() => <ActivityTable athlete={this.props.store.current_athlete_id}/>} />
+            <Route exact path="/" render={() => <ActivityTable />} />
             <Route exact path="/segments" render={() => <SegmentTable />} />
           </div>
         </Router>

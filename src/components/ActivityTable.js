@@ -3,6 +3,7 @@ import moment from 'moment';
 import Spinner from './Spinner';
 import Zones from './Zones';
 import Pagination from './Pagination';
+import { observer, inject } from "mobx-react";
 
 
 class ActivityTable extends Component {
@@ -41,7 +42,7 @@ class ActivityTable extends Component {
     return (
       <div className="athlete-view">
         <Zones />
-        <Pagination athlete={this.props.athlete} getActivities={this.handleClick.bind(this)} />
+        <Pagination athlete={this.props.store.currentAthleteId} getActivities={this.handleClick.bind(this)} />
         <table>
           <thead>
           <tr><th>Date</th><th>Activity</th><th>Elevation</th><th>Distance</th><th>Time</th><th>Pace</th><th>HR</th><th>Fitness</th></tr>
@@ -67,4 +68,4 @@ class ActivityTable extends Component {
   }
 }
 
-export default ActivityTable;
+export default inject("store")(observer(ActivityTable));
