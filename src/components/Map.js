@@ -21,8 +21,8 @@ class Mapbox extends Component {
     this.mapProps = {
       className: 'mapboxgl-container-style',
       style: 'mapbox://styles/mapbox/dark-v9',
-      center: [170.5000, -45.8758],
-      zoom: [12],
+      center: [170.53555565006917, -45.84691949015995],//[170.5000, -45.8758],
+      zoom: [15],
       minZoom: 9,
       maxZoom: 24,
       cursor: 'pointer',
@@ -30,6 +30,7 @@ class Mapbox extends Component {
     };
   }
   handleMapClick = (e) => {
+    console.log(e.lngLat);
     this.setState(Object.assign({}, this.state, { bounds: e.getBounds(), popup: undefined }));
   };
   onClickLine = (coordinates, segment) => {
@@ -45,6 +46,11 @@ class Mapbox extends Component {
         Object.assign({}, s, { segment_id: s.id, speed: s.distance/s.elapsed_time, effort_speed: s.effort_distance/s.elapsed_time })))
       .then(segments => this.setState(Object.assign({}, this.state, { segments, isFetchingSegments: false })));
   };
+  handleDragEnd = (e) => {
+    this.props.store.setBounds(e.getBounds());
+    this.setState(Object.assign({}, this.state, { bounds: e.getBounds() }));
+    console.log(e.getBounds());
+  };
 
   render() {
     // Generate geojson feature collection which can be input into geojson-vt to make vector tiles
@@ -59,8 +65,7 @@ class Mapbox extends Component {
     //   )),
     // };
     //console.log(JSON.stringify(geojson));
-
-    return <Map {...this.mapProps}>
+    return <Map {...this.mapProps} onDragEnd={(e) => this.handleDragEnd(e)}>
       <button className="scanButton btn" onClick={e => this.scanSegmentsClick(e)}>Scan for segments</button>
       <ZoomControl />
       <ScaleControl />
@@ -71,7 +76,7 @@ class Mapbox extends Component {
                       currentAthleteEffort={_.find(this.props.store.athleteSegments, s => s.id === this.state.popup.segment.id)}
         />
       }
-      {this.props.store.getFilteredSegments().slice(0, 1000).map(segment =>
+      {this.props.store.getFilteredSegments().map(segment =>
         <SegmentPolyline key={`line-${segment.activity_id}-${segment.id}`}
                      id={`${segment.activity_id}-${segment.id}`}
                      segment={segment}

@@ -46,7 +46,7 @@ class SegmentPolyline extends Component {
         key={id}
         data={geojson}
         linePaint={{
-          "line-color": hslToHex(segment.speed*15, 100, 50),//"#ff7200",
+          "line-color": hslToHex(calcDifficulty(segment), 100, 50),//"#ff7200",
           "line-width": this.state.lineWidth,
           "line-opacity": this.state.lineOpacity,
         }}
@@ -67,6 +67,7 @@ class SegmentPolyline extends Component {
               onMouseLeave={() => this.onMarkerLeave()}
       >
         <div className="athlete-initials"><span>{this.getInitials(segment.athlete_name)}</span></div>
+        {/*<div className="athlete-initials"><span>{segment.difficulty}</span></div>*/}
       </Marker>
       {this.state.endPoint &&
       <Marker key={`end-${segment.activity_id}-${segment.id}`}
@@ -80,6 +81,12 @@ class SegmentPolyline extends Component {
 }
 
 export default SegmentPolyline;
+
+// Color segment line by difficulty
+function calcDifficulty(segment) {
+  //console.log(segment.speed*15, segment.distance/50, segment.avg_grade*8);
+  return segment.speed*15;
+}
 
 // Used to color the segment lines
 function hslToHex(h, s, l) {

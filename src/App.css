@@ -311,6 +311,7 @@ ul.zones {
 .startMarkerHover .athlete-initials span {
   font-size: 16px;
   top: 2px;
+  display: block;
 }
 
 .endMarker {

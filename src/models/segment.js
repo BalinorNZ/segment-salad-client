@@ -33,6 +33,20 @@ const Segment = types
   .views(self => ({
       get segment_id() { return self.id },
       get speed() { return self.distance/self.elapsed_time },
+      get pace() {
+        const speed = self.distance/self.elapsed_time;
+        if(!speed) return '0:00';
+        const total_seconds = 1000 / speed;
+        const pace_seconds =
+          (total_seconds % 60).toFixed(1) < 9.5 ? '0'+(total_seconds % 60).toFixed(0) : (total_seconds % 60).toFixed(0);
+        return `${Math.floor(total_seconds/60)}:${pace_seconds}`;
+      },
+      get difficulty() {
+        const grade = self.avg_grade * 4;
+        const speed = (self.effort_distance/self.elapsed_time) * 14;
+        return `${grade.toFixed(0)}/${speed.toFixed(0)}`;
+        //return ((grade + speed)/2).toFixed(0);
+      },
       get effort_speed() { return self.effort_distance/self.elapsed_time },
     })
   );

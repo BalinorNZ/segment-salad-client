@@ -15,17 +15,42 @@ const Store = types
     isFetchingSegments: false,
     soloAthleteId: types.maybe(types.string),
     hideAthleteId: types.maybe(types.string),
+    bounds_sw: types.maybe(types.model({ lng: types.number, lat: types.number })),
+    bounds_ne: types.maybe(types.model({ lng: types.number, lat: types.number })),
   })
   .views(self => ({
     // utilities
     findSegmentById: (id) => self.segments.find(s => s.id === id),
     getSegments: () => self.segments.filter(s => s.entry_count >= 5),
     getFilteredSegments: () => self.getSegments()
+        .slice(0, 1000)
         .filter(s => self.soloAthleteId ? s.athlete_id === self.soloAthleteId : true)
-        .filter(s => self.hideAthleteId ? s.athlete_id !== self.hideAthleteId : true),
+        .filter(s => self.hideAthleteId ? s.athlete_id !== self.hideAthleteId : true)
+        .filter(s => {
+          if(!self.bounds_sw || !self.bounds_ne) return true;
+          // console.log(s.start_latlng.x, self.bounds_sw.lat);
+          // console.log(s.start_latlng.x, self.bounds_ne.lat);
+          // console.log(s.start_latlng.y, self.bounds_ne.lng);
+          // console.log(s.start_latlng.y, self.bounds_sw.lng);
+          if(s.start_latlng.x > self.bounds_sw.lat
+          && s.start_latlng.x < self.bounds_ne.lat
+          && s.start_latlng.y < self.bounds_ne.lng
+          && s.start_latlng.y > self.bounds_sw.lng)
+            return true;
+          if(s.end_latlng.x < self.bounds_sw.lat
+            && s.end_latlng.x > self.bounds_ne.lat
+            && s.end_latlng.y < self.bounds_ne.lng
+            && s.end_latlng.y > self.bounds_sw.lng)
+            return true;
+          return false;
+        }),
   }))
   .actions(self => ({
     // actions
+    setBounds(bounds) {
+      self.bounds_sw = { lng: bounds._sw.lng, lat: bounds._sw.lat };
+      self.bounds_ne = { lng: bounds._ne.lng, lat: bounds._ne.lat };
+    },
     soloAthlete(athlete_id) { self.soloAthleteId = athlete_id === self.soloAthleteId ? undefined : athlete_id },
     hideAthlete(athlete_id) { self.hideAthleteId = athlete_id === self.hideAthleteId ? undefined : athlete_id },
     fetchClubs: flow(function* fetchClubs(){
