@@ -43,20 +43,22 @@ class AthleteSegmentsTable extends Component {
         <Pagination athlete={this.props.store.currentAthleteId} getActivities={this.handleClick.bind(this)} />
         <table>
           <thead>
-          <tr><th>Segment</th><th>Elevation</th><th>Effort Dist</th><th>Segment Dist</th><th>Time</th><th>Pace</th><th>HR</th><th>Fitness</th></tr>
+          <tr><th>Segment</th><th>Grade</th><th>Cadence</th><th>Effort Dist</th><th>Segment Dist</th><th>Time</th><th>Pace</th><th>HR</th><th>Fitness</th><th>Rank</th></tr>
           </thead>
           <tbody>
           {this.state.athleteSegments
             .map(effort =>
               <tr key={effort.id}>
-                <td>{effort.segment.name}</td>
-                <td>{effort.total_elevation_gain} m</td>
+                <td title={effort.activity.id}>{effort.segment.name}</td>
+                <td>{effort.segment.average_grade}%</td>
+                <td>{effort.average_cadence*2}</td>
                 <td>{(effort.distance/1000).toFixed(2)} km</td>
                 <td>{(effort.segment.distance/1000).toFixed(2)} km</td>
                 <td>{moment.utc(effort.moving_time*1000).format('HH:mm:ss')}</td>
-                <td>{this.convertSpeedToPace(effort.average_speed)}/km</td>
+                <td>{this.convertSpeedToPace(effort.distance / effort.moving_time)}/km</td>
                 <td>{effort.average_heartrate ? effort.average_heartrate.toFixed(1) : '000.0'} bpm</td>
-                <td>{this.calculateFitness(effort.average_speed, effort.average_heartrate)}</td>
+                <td>{this.calculateFitness((effort.distance / effort.moving_time), effort.average_heartrate)}</td>
+                <td>{effort.kom_rank} |  {effort.pr_rank}</td>
               </tr>
             )}
           </tbody>
