@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
 import { BrowserRouter as Router, Link, Route } from 'react-router-dom';
 import './App.css';
-import Map from './components/Map';
-import FilterMenu from './components/FilterMenu';
+import MapContainer from './components/MapContainer';
 import SegmentTable from './components/SegmentTable';
 import ActivityTable from './components/ActivityTable';
 import Button from './components/Button';
@@ -38,27 +37,25 @@ class App extends Component {
   render() {
     return (
       <div className="App">
-
-        <FilterMenu />
-
-        <Map />
-
-        <Button buttonText="Scan activities for new segments"
-                onClick={() => this.getSegmentsForActivities(this.props.store.currentAthleteId)}
-        />
-        <Button buttonText="Refresh all segment efforts" onClick={this.getAllSegmentsEfforts}/>
-        <Button buttonText="Refresh effortless segment efforts" onClick={this.getEffortlessSegmentsEfforts}/>
-
         <Router>
           <div>
+            <div className="scan-buttons">
+              <Button buttonText="Scan activities for new segments"
+                      onClick={() => this.getSegmentsForActivities(this.props.store.currentAthleteId)}
+              />
+              <Button buttonText="Refresh all segment efforts" onClick={this.getAllSegmentsEfforts}/>
+              <Button buttonText="Refresh effortless segment efforts" onClick={this.getEffortlessSegmentsEfforts}/>
+            </div>
             <div className="tabs" id="navcontainer">
               <ul id="navlist" className="tables">
                 <li><Link to="/">Activities</Link></li>
                 <li><Link to="/segments">Segments</Link></li>
+                <li><Link to="/map">Map</Link></li>
               </ul>
             </div>
             <Route exact path="/" render={() => <ActivityTable />} />
             <Route exact path="/segments" render={() => <SegmentTable />} />
+            <Route exact path="/map" render={() => <MapContainer />} />
           </div>
         </Router>
 

@@ -30,6 +30,7 @@ body {
 .segment-view, .athlete-view {
   width: 1280px;
   margin: auto;
+  padding-top: 50px;
 }
 .segment-view .date {
   min-width: 116px;
@@ -73,20 +74,27 @@ ul.zones {
 }
 
 #navcontainer {
-  margin-left: auto;
-  margin-right: auto;
-  margin-bottom: 0px;
-  margin-top: 20px;
+  margin: 0;
+  line-height: 40px;
+  height: 40px;
+  margin-right: 30px;
+  float: right;
   z-index: 1;
+}
+.scan-buttons {
+  float: left;
+  line-height: 40px;
 }
 
 #navcontainer ul {
   list-style-type: none;
   text-align: center;
-  margin-top: -12px;
   padding: 0;
   position: relative;
   z-index: 2;
+  margin: 0;
+  line-height: 40px;
+  height: 40px;
 }
 
 #navcontainer li {
@@ -96,10 +104,7 @@ ul.zones {
 }
 
 #navcontainer li {
-  padding: 1px 7px;
   color: #666;
-  background-color: #fff;
-  border: 1px solid #ccc;
   text-decoration: none;
 }
 
@@ -515,7 +520,7 @@ strong {
   width: 280px;
   box-shadow: 0 0 20px -10px rgba(0, 0, 0, 0.3);
   position: absolute;
-  top: 0;
+  top: 40px;
   left: 0;
   transition: transform .3s
   cubic-bezier(0, .52, 0, 1);
