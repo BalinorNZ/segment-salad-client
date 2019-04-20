@@ -6,6 +6,7 @@ import SegmentTable from './components/SegmentTable';
 import ActivityTable from './components/ActivityTable';
 import Button from './components/Button';
 import { observer, inject } from "mobx-react";
+import AthleteSegmentsTable from "./components/AthleteSegmentsTable";
 
 
 class App extends Component {
@@ -48,11 +49,13 @@ class App extends Component {
             </div>
             <div className="tabs" id="navcontainer">
               <ul id="navlist" className="tables">
+                <li><Link to="/athlete-segments">Athlete Segments</Link></li>
                 <li><Link to="/">Activities</Link></li>
                 <li><Link to="/segments">Segments</Link></li>
                 <li><Link to="/map">Map</Link></li>
               </ul>
             </div>
+            <Route exact path="/athlete-segments" render={() => <AthleteSegmentsTable />} />
             <Route exact path="/" render={() => <ActivityTable />} />
             <Route exact path="/segments" render={() => <SegmentTable />} />
             <Route exact path="/map" render={() => <MapContainer />} />
