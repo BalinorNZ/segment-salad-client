@@ -20,6 +20,12 @@ class App extends Component {
     // get athletes for athlete autocomplete filter
     this.props.store.fetchAthletes().then(() => this.props.store.updateReduxState());
   };
+  getAthleteSegments() {
+    fetch(`/athletesegments`)
+      .then(res => res.json())
+      //.then(json => json.message === 'Rate Limit Exceeded' ? Promise.reject() : json)
+      .then(payload => console.log(payload));
+  }
   getSegmentsForActivities(athlete_id) {
     fetch(`/segments/scanactivities/${athlete_id}`)
       .then(res => res.json())
@@ -46,6 +52,7 @@ class App extends Component {
               />
               <Button buttonText="Refresh all segment efforts" onClick={this.getAllSegmentsEfforts}/>
               <Button buttonText="Refresh effortless segment efforts" onClick={this.getEffortlessSegmentsEfforts}/>
+              <Button buttonText="Get all segments from athlete" onClick={this.getAthleteSegments}/>
             </div>
             <div className="tabs" id="navcontainer">
               <ul id="navlist" className="tables">

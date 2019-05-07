@@ -6,10 +6,10 @@ import { observer, inject } from "mobx-react";
 
 
 class AthleteSegmentsTable extends Component {
-  state = { athleteSegments: [], isFetching: true };
+  state = { athleteSegments: [], isFetching: false };
 
   componentDidMount() {
-    this.getAthleteSegments();
+    //this.getAthleteSegments();
   }
   getAthleteSegments() {
     fetch(`/athletesegments`)
