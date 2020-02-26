@@ -1,3 +1,14 @@
+## Segment Salad
+
+A webapp that displays a map overlayed with the routes of all Strava segments in the area, color coded by pace of course record and labeled with course record holder.
+*Segment leaderboard (who holds the most course records in visible map area)
+*Click segment label to see segment/course record details
+*Filter visible segments by athlete or Strava club
+*Table of details about visible segments
+
+![Screenshot of segment map](https://www.dropbox.com/s/soisbd0uk3lyhg9/SegmentExplorer2018-1.png?raw=1)
+![Screenshot of segment map](https://www.dropbox.com/s/n7gglg6z1bndy8q/SegmentExplorer2018-2.png?raw=1)
+
 This project was bootstrapped with [Create React App](https://github.com/facebookincubator/create-react-app).
 
 Below you will find some information on how to perform common tasks.<br>
