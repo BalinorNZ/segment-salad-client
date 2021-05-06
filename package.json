@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "lodash": "^4.17.4",
+    "lodash": "^4.17.21",
     "mapbox-gl": "^0.42.2",
     "mobx": "^3.4.1",
     "mobx-devtools-mst": "^0.9.9",
